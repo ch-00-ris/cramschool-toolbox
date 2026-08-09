@@ -10,6 +10,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <style>
 
   /* ---------- shared shell / reset ---------- */
@@ -498,28 +499,7 @@
   .mod-review .colhead-type {display:inline-block; font-size:11.5px; font-weight:700; border-radius:6px; padding:1px 6px; margin-bottom:3px;}
   .mod-review .colhead-type.type-main {background:#F1E4D0; color:var(--board-dark);}
   .mod-review .colhead-type.type-sub {background:var(--red-light); color:var(--red);}
-  .mod-review table.gradegrid input[type=number] {width:64px; min-height:34px; padding:4px; font-size:15px;}
-
-  .mod-review /* ---------- Print (A4 landscape) ---------- */
-  .print-preview-pages {display:flex; flex-direction:column; gap:26px; align-items:center;}
-  .mod-review .print-page {
-    width:297mm; min-height:150mm; background:#fff; box-shadow:0 4px 18px rgba(0,0,0,.25);
-    padding:10mm; border:1px solid #ccc;
-  }
-  .mod-review .print-page h3 {text-align:center; color:var(--board-dark); font-family:'Microsoft JhengHei','微軟正黑體','Noto Sans TC',sans-serif;}
-  .mod-review .print-page table {width:100%; border-collapse:collapse; font-size:11px;}
-  .mod-review .print-page th, .mod-review .print-page td {border:1px solid #999; padding:3px 4px; text-align:center;}
-  .mod-review .print-page th {background:#EFE6D2;}
-  .mod-review .print-page .frozen {background:#F7F1E0; font-weight:700;}
-  .mod-review .page-tag {text-align:right; font-size:12px; color:var(--ink-soft); margin-top:4px;}
-
-  @media print {
-    .mod-review * {visibility:hidden;}
-    .mod-review #printArea, .mod-review #printArea * {visibility:visible;}
-    .mod-review #printArea {position:absolute; left:0; top:0; width:100%;}
-    .mod-review .print-page {box-shadow:none; border:none; page-break-after:always; margin:0 auto;}
-    @page{ size: A4 landscape; margin:8mm; }
-  }
+  .mod-review table.gradegrid input.score-input {width:72px; min-height:34px; padding:4px; font-size:15px; text-align:center;}
 
   .mod-review /* ---------- JPEG export ----------
      Fixed "official document" palette, .mod-review independent of the tool's own
@@ -563,7 +543,6 @@
 
   @media (max-width:720px) {
     .mod-review {font-size:17px;}
-    .mod-review .print-page {width:100%;}
     .mod-review table.calendar td {height:80px;}
   }
 
@@ -599,7 +578,7 @@
       <div class="module-card" onclick="showModule('review')">
         <span class="icon">📘</span>
         <h2>複習進度・成績登記系統</h2>
-        <p>登打每月複習進度與成績，產生 A4 列印表與個人成績通知單 JPEG。</p>
+        <p>登打每月複習進度與成績，產生個人成績通知單 JPEG，並可匯出/匯入 Excel 登打成績。</p>
       </div>
     </div>
   </div>
@@ -1620,7 +1599,7 @@ return { $, storageGetJSON, storageSetJSON, refreshSharedData, saveCourseOptions
     <span class="sidebar-avatar">🎓</span>
     <span class="sidebar-title">複習進度<br>成績登記系統</span>
   </div>
-  <div class="sidebar-sub">每月複習進度 → 成績登打 → A4 列印 → JPEG 匯出</div>
+  <div class="sidebar-sub">每月複習進度 → 成績登打 → JPEG 匯出</div>
 
   <div class="sidebar-backup">
     <button class="btn btn-gold btn-sm" onclick="ReviewApp.exportBackup()">📥 下載備份檔</button>
@@ -1636,9 +1615,8 @@ return { $, storageGetJSON, storageSetJSON, refreshSharedData, saveCourseOptions
 
   <button class="tab-btn active" data-tab="settings" onclick="ReviewApp.switchTab('settings')"><span class="tab-num">1</span><span class="tab-label">科目與學生</span></button>
   <button class="tab-btn" data-tab="calendar" onclick="ReviewApp.switchTab('calendar')"><span class="tab-num">2</span><span class="tab-label">複習進度月曆</span></button>
-  <button class="tab-btn" data-tab="printview" onclick="ReviewApp.switchTab('printview')"><span class="tab-num">3</span><span class="tab-label">A4 列印表</span></button>
-  <button class="tab-btn" data-tab="grades" onclick="ReviewApp.switchTab('grades')"><span class="tab-num">4</span><span class="tab-label">成績登打</span></button>
-  <button class="tab-btn" data-tab="jpeg" onclick="ReviewApp.switchTab('jpeg')"><span class="tab-num">5</span><span class="tab-label">個人成績 JPEG</span></button>
+  <button class="tab-btn" data-tab="grades" onclick="ReviewApp.switchTab('grades')"><span class="tab-num">3</span><span class="tab-label">成績登打</span></button>
+  <button class="tab-btn" data-tab="jpeg" onclick="ReviewApp.switchTab('jpeg')"><span class="tab-num">4</span><span class="tab-label">個人成績 JPEG</span></button>
 </nav>
 
 <main class="content-area">
@@ -1652,6 +1630,16 @@ return { $, storageGetJSON, storageSetJSON, refreshSharedData, saveCourseOptions
     <div class="inline-form">
       <input type="text" id="newSubjectInput" placeholder="輸入新科目名稱，例如：國文">
       <button class="btn btn-primary" onclick="ReviewApp.addSubject()">＋ 新增科目</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>成績文字選項</h2>
+    <p class="hint">成績登打表的每一格可以輸入 0~100 的數字，也可以直接輸入文字（例如「請假」「補課」），下面的清單只是輸入時的建議選項，可自行新增、修改、刪除，不會限制成績格只能填清單裡的文字。</p>
+    <div class="chip-list" id="scoreTextChips"></div>
+    <div class="inline-form">
+      <input type="text" id="newScoreTextInput" placeholder="輸入新的文字選項，例如：請假">
+      <button class="btn btn-primary" onclick="ReviewApp.addScoreTextOption()">＋ 新增選項</button>
     </div>
   </div>
 
@@ -1692,7 +1680,7 @@ return { $, storageGetJSON, storageSetJSON, refreshSharedData, saveCourseOptions
 <div class="tab-panel" id="tab-grades">
   <div class="card">
     <h2>成績登打表</h2>
-    <p class="hint">下方會列出「有輸入複習進度」的所有項目，可以直接在表格中手動輸入 0~100 的分數，也可以先「匯出登打用 Excel」給老師手寫或用電腦填寫，再「匯入 Excel 成績」一次帶回系統。同一天的項目會合併顯示日期，方便閱讀。可以用「顯示範圍」＋「日期區間」篩選要看的複習項目，也可以用「姓名搜尋」快速找到某位學生。可用鍵盤上下鍵在同一欄快速移動。</p>
+    <p class="hint">下方會列出「有輸入複習進度」的所有項目，可以直接在表格中手動輸入 0~100 的分數，也可以輸入文字（例如「請假」「補課」，輸入時會有建議選項，也可以自行輸入其他文字），或先「匯出登打用 Excel」給老師手寫或用電腦填寫，再「匯入 Excel 成績」一次帶回系統。同一天的項目會合併顯示日期，方便閱讀。可以用「顯示範圍」＋「日期區間」篩選要看的複習項目，也可以用「姓名搜尋」快速找到某位學生。可用鍵盤上下鍵在同一欄快速移動。</p>
     <div class="inline-form" style="margin-bottom:10px;">
       <label>顯示範圍：</label>
       <select id="gradeMonthFilter" onchange="ReviewApp.renderGradeGrid()"></select>
@@ -1715,24 +1703,11 @@ return { $, storageGetJSON, storageSetJSON, refreshSharedData, saveCourseOptions
       <span class="hint" style="margin:0;">（匯出、匯入請使用同一份 Excel，欄位標題才能對得上）</span>
     </div>
     <div class="grid-wrap"><table class="gradegrid" id="gradeGrid"></table></div>
+    <datalist id="scoreTextOptionsList"></datalist>
   </div>
 </div>
 
-<!-- TAB 4: PRINT -->
-<div class="tab-panel" id="tab-printview">
-  <div class="card">
-    <h2>A4 橫式列印預覽</h2>
-    <p class="hint">依原始表格「學生為列、複習項目為欄」的方式呈現，可以先印出這張空白表格讓老師手寫登打成績，之後再到「④ 成績登打」把分數輸入電腦。若項目太多超過一張 A4 寬度，會自動分成下一張。</p>
-    <div class="inline-form" style="margin-bottom:14px;">
-      <label>顯示範圍：</label>
-      <select id="printMonthFilter" onchange="ReviewApp.renderPrintPreview()"></select>
-      <button class="btn btn-gold" onclick="window.print()">🖨️ 列印</button>
-    </div>
-    <div class="print-preview-pages" id="printArea"></div>
-  </div>
-</div>
-
-<!-- TAB 5: JPEG -->
+<!-- TAB 4: JPEG -->
 <div class="tab-panel" id="tab-jpeg">
   <div class="card">
     <h2>個人成績 JPEG 匯出</h2>
@@ -1800,8 +1775,9 @@ let state = {
   orgName: '大昇文理補習班',
   subjects: ['國文','英文','數學','自然','社會'],
   students: [],
-  months: {},   // 'YYYY-MM' -> { days: { 'YYYY-MM-DD': {main:{subject,items:[{id,text}]}, sub:{...}} } }
-  scores: {}    // itemId -> { studentId: number }
+  months: {},   // 'YYYY-MM' -> { days: { 'YYYY-MM-DD': {items:[{id,subject,text}]} } }
+  scores: {},   // itemId -> { studentId: number|string }  (number = 0~100 分數，字串 = 請假/補課等文字狀態)
+  scoreTextOptions: ['請假','補課']   // 成績欄可選的文字狀態，可在「① 科目與學生」新增/修改/刪除
 };
 let dirty = false;          // true = changes made since the last JSON backup download
 let hasAnyData = false;     // true once the browser has autosaved at least once
@@ -1840,7 +1816,7 @@ function loadFromLocalStorage(){
     if(!raw) return false;
     const data = JSON.parse(raw);
     if(!data || !data.subjects || !data.students || !data.months) return false;
-    state = Object.assign({orgName:'大昇文理補習班',subjects:[],students:[],months:{},scores:{}}, data);
+    state = Object.assign({orgName:'大昇文理補習班',subjects:[],students:[],months:{},scores:{},scoreTextOptions:['請假','補課']}, data);
     migrateMonthsShape(state.months);
     hasAnyData = true;
     return true;
@@ -1853,7 +1829,7 @@ async function resetLocalData(){
   const ok = await showConfirmModal('這會清除目前存在此瀏覽器裡的所有資料（科目、學生、複習進度、成績），且無法復原。\n如果還沒下載備份檔，建議先按「📥 下載備份檔」保存。\n\n確定要清除，重新開始嗎？');
   if(!ok) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(err){ console.error(err); }
-  state = { orgName: '大昇文理補習班', subjects: ['國文','英文','數學','自然','社會'], students: [], months: {}, scores: {} };
+  state = { orgName: '大昇文理補習班', subjects: ['國文','英文','數學','自然','社會'], students: [], months: {}, scores: {}, scoreTextOptions: ['請假','補課'] };
   dirty = false;
   hasAnyData = false;
   updateSaveStatus();
@@ -1932,7 +1908,6 @@ function switchTab(name){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='tab-'+name));
   if(name==='calendar') renderCalendar();
   if(name==='grades'){ populateMonthFilter('gradeMonthFilter'); renderGradeGrid(); }
-  if(name==='printview'){ populateMonthFilter('printMonthFilter'); renderPrintPreview(); }
   if(name==='jpeg'){ populateStudentSelect(); renderJpegPreview(); }
 }
 
@@ -1967,7 +1942,7 @@ function importBackup(evt){
       const ok = await showConfirmModal('目前尚有未匯出的變更，匯入備份將會覆蓋現有資料，確定要繼續嗎？');
       if(!ok) return;
     }
-    state = Object.assign({orgName:'大昇文理補習班',subjects:[],students:[],months:{},scores:{}}, data);
+    state = Object.assign({orgName:'大昇文理補習班',subjects:[],students:[],months:{},scores:{},scoreTextOptions:['請假','補課']}, data);
     migrateMonthsShape(state.months);
     markSaved();
     toast('匯入成功！');
@@ -1977,10 +1952,9 @@ function importBackup(evt){
   evt.target.value = '';
 }
 function refreshAll(){
-  renderSubjects(); renderStudents();
+  renderSubjects(); renderStudents(); renderScoreTextChips();
   renderCalendar();
   populateMonthFilter('gradeMonthFilter'); renderGradeGrid();
-  populateMonthFilter('printMonthFilter'); renderPrintPreview();
   populateStudentSelect(); renderJpegPreview();
 }
 
@@ -2015,6 +1989,57 @@ function addSubject(){
   state.subjects.push(v);
   input.value = '';
   markDirty(); renderSubjects();
+}
+function renderScoreTextChips(){
+  const wrap = document.getElementById('scoreTextChips');
+  wrap.innerHTML = '';
+  if(!Array.isArray(state.scoreTextOptions)) state.scoreTextOptions = [];
+  state.scoreTextOptions.forEach((opt, idx)=>{
+    const chip = document.createElement('span');
+    chip.className = 'chip';
+    const label = document.createElement('span');
+    label.textContent = opt;
+    label.style.cursor = 'pointer';
+    label.title = '點一下可修改文字';
+    label.onclick = async ()=>{
+      const val = await showPromptModal('修改成績文字選項：', opt);
+      if(val===null) return;
+      const trimmed = val.trim();
+      if(!trimmed) return;
+      if(state.scoreTextOptions.includes(trimmed) && trimmed!==opt){ toast('這個文字選項已經存在了'); return; }
+      state.scoreTextOptions[idx] = trimmed;
+      markDirty(); renderScoreTextChips();
+    };
+    chip.appendChild(label);
+    const del = document.createElement('button');
+    del.textContent = '✕';
+    del.title = '刪除這個文字選項';
+    del.onclick = async ()=>{
+      const ok = await showConfirmModal(`確定要刪除文字選項「${opt}」嗎？（已經填在成績格裡的文字不會被清除）`);
+      if(ok){
+        state.scoreTextOptions.splice(idx,1); markDirty(); renderScoreTextChips();
+      }
+    };
+    chip.appendChild(del);
+    wrap.appendChild(chip);
+  });
+  updateScoreTextDatalist();
+}
+function addScoreTextOption(){
+  const input = document.getElementById('newScoreTextInput');
+  const v = input.value.trim();
+  if(!v) return;
+  if(!Array.isArray(state.scoreTextOptions)) state.scoreTextOptions = [];
+  if(state.scoreTextOptions.includes(v)){ toast('這個文字選項已經存在了'); return; }
+  state.scoreTextOptions.push(v);
+  input.value = '';
+  markDirty(); renderScoreTextChips();
+}
+function updateScoreTextDatalist(){
+  const dl = document.getElementById('scoreTextOptionsList');
+  if(!dl) return;
+  const opts = Array.isArray(state.scoreTextOptions) ? state.scoreTextOptions : [];
+  dl.innerHTML = opts.map(o=>`<option value="${escapeHtml(o)}"></option>`).join('');
 }
 function renderStudents(){
   const table = document.getElementById('reviewStudentTable');
@@ -2397,10 +2422,16 @@ function getGradeFilterState(){
 
   return {items, studentRows};
 }
+function gradeExcelDateLabel(it){
+  return it.date.slice(5).replace('-','/');
+}
+function gradeExcelItemText(it){
+  // Excel 匯出用：所有科目都只顯示進度內容本身，不顯示科目名稱
+  return it.text;
+}
 function gradeColumnLabel(it){
-  // Human-readable, stable column header used for BOTH the Excel export and
-  // import matching — must stay in sync between the two directions.
-  return `${it.date.slice(5).replace('-','/')} ${it.subject}-${it.text}`;
+  // 用於 Excel 匯出/匯入時比對欄位的穩定文字（日期＋顯示內容），匯出匯入需保持一致
+  return `${gradeExcelDateLabel(it)} ${gradeExcelItemText(it)}`;
 }
 function renderGradeGrid(){
   const {items, studentRows} = getGradeFilterState();
@@ -2426,6 +2457,7 @@ function renderGradeGrid(){
   const gridWrap = document.querySelector('.grid-wrap');
   gridWrap.innerHTML = '<table class="gradegrid" id="gradeGrid"></table>';
   const table = document.getElementById('gradeGrid');
+  updateScoreTextDatalist();
 
   let headRow1 = '<tr><th class="frozen" rowspan="2">序號</th><th class="frozen" rowspan="2">姓名</th>';
   let i = 0;
@@ -2453,8 +2485,8 @@ function renderGradeGrid(){
     body += `<tr><td class="frozen">${seq}</td><td class="frozen">${escapeHtml(st.name)}</td>`;
     items.forEach(it=>{
       const val = (state.scores[it.id] && state.scores[it.id][st.id]!==undefined) ? state.scores[it.id][st.id] : '';
-      const cellTitle = `${escapeHtml(st.name)} － ${escapeHtml(itemDetailText(it))}${val!==''?'\n目前分數：'+val:''}`;
-      body += `<td><input type="number" min="0" max="100" value="${val}" title="${cellTitle}"
+      const cellTitle = `${escapeHtml(st.name)} － ${escapeHtml(itemDetailText(it))}${val!==''?'\n目前分數／狀態：'+val:''}`;
+      body += `<td><input type="text" class="score-input" list="scoreTextOptionsList" value="${escapeHtml(String(val))}" title="${cellTitle}"
         data-item="${it.id}" data-student="${st.id}"
         onchange="ReviewApp.setScore(this)" onkeydown="ReviewApp.gridKeyNav(event,this)"></td>`;
     });
@@ -2467,29 +2499,103 @@ function clearGradeDateFilter(){
   document.getElementById('gradeDateTo').value = '';
   renderGradeGrid();
 }
-function exportGradeExcel(){
+async function exportGradeExcel(){
   const {items, studentRows} = getGradeFilterState();
   if(items.length===0 || studentRows.length===0){
     showInfoModal('目前篩選範圍內沒有可匯出的資料，請確認「顯示範圍」「日期區間」「姓名搜尋」的設定。');
     return;
   }
-  const header = ['序號', '姓名', ...items.map(gradeColumnLabel)];
-  const rows = [header];
-  studentRows.forEach(({st, seq})=>{
-    const row = [seq, st.name];
-    items.forEach(it=>{
-      const val = (state.scores[it.id] && state.scores[it.id][st.id]!==undefined) ? state.scores[it.id][st.id] : '';
-      row.push(val);
-    });
-    rows.push(row);
+  if(typeof ExcelJS === 'undefined'){
+    showInfoModal('Excel 匯出功能還沒載入完成，請確認網路連線正常，重新整理頁面後再試一次。');
+    return;
+  }
+  const thick = {style:'thick', color:{argb:'FF000000'}};
+  const thin = {style:'thin', color:{argb:'FF999999'}};
+  const totalCols = 2 + items.length;
+  const totalRows = 2 + studentRows.length;
+
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet('成績登打');
+  ws.properties.defaultColWidth = 12;
+  for(let c=1; c<=totalCols; c++){ ws.getColumn(c).width = 12; }
+
+  // 標題列一：序號／姓名（縱向合併兩列）＋ 日期（同一天橫向合併）
+  ws.getCell(1,1).value = '序號';
+  ws.getCell(1,2).value = '姓名';
+  ws.mergeCells(1,1,2,1);
+  ws.mergeCells(1,2,2,2);
+
+  // 記錄每個「日期區塊」的起訖欄位，等一下畫格線時，區塊之間的分隔線要用粗線框起來
+  const dateGroupStartCols = new Set([1, 3]);   // 表格最左邊、以及序號/姓名之後、第一個日期區塊開始
+  const dateGroupEndCols = new Set([2]);        // 序號/姓名區塊結束
+
+  let col = 3, i = 0;
+  while(i < items.length){
+    let j = i;
+    while(j+1 < items.length && items[j+1].date === items[i].date) j++;
+    const span = j - i + 1;
+    ws.getCell(1, col).value = gradeExcelDateLabel(items[i]);
+    if(span > 1) ws.mergeCells(1, col, 1, col + span - 1);
+    dateGroupStartCols.add(col);
+    dateGroupEndCols.add(col + span - 1);
+    col += span;
+    i = j + 1;
+  }
+  dateGroupEndCols.add(totalCols); // 表格最右邊
+
+  // 標題列二：每個項目的進度內容（不顯示科目名稱）
+  items.forEach((it, idx)=>{
+    ws.getCell(2, 3+idx).value = gradeExcelItemText(it);
   });
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws['!cols'] = [{wch:6},{wch:12}, ...items.map(()=>({wch:16}))];
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, '成績登打');
-  const stamp = new Date().toISOString().slice(0,10);
-  XLSX.writeFile(wb, `成績登打表_${stamp}.xlsx`);
-  toast('已匯出 Excel，填好分數後可用「匯入 Excel 成績」帶回系統');
+
+  // 學生資料列
+  studentRows.forEach(({st, seq}, rIdx)=>{
+    const r = 3 + rIdx;
+    ws.getCell(r,1).value = seq;
+    ws.getCell(r,2).value = st.name;
+    items.forEach((it, idx)=>{
+      const val = (state.scores[it.id] && state.scores[it.id][st.id]!==undefined) ? state.scores[it.id][st.id] : '';
+      ws.getCell(r, 3+idx).value = val;
+    });
+  });
+
+  // 樣式：標題列粗體置中換行
+  [1,2].forEach(r=>{
+    ws.getRow(r).eachCell({includeEmpty:true}, cell=>{
+      cell.font = {bold:true};
+      cell.alignment = {vertical:'middle', horizontal:'center', wrapText:true};
+    });
+  });
+
+  // 格線：只有「每個日期區塊的左右邊界」與「標題列跟學生資料列之間的分隔線」用粗線框起來，
+  // 其餘（同一天內的欄位分隔線、學生姓名的每一列之間）都用細線，人名的列不用加粗。
+  for(let r=1; r<=totalRows; r++){
+    for(let c=1; c<=totalCols; c++){
+      const left = dateGroupStartCols.has(c) ? thick : thin;
+      const right = dateGroupEndCols.has(c) ? thick : thin;
+      const top = (r===1 || r===3) ? thick : thin;
+      const bottom = (r===2 || r===totalRows) ? thick : thin;
+      ws.getCell(r,c).border = {top, left, bottom, right};
+      if(r>2) ws.getCell(r,c).alignment = {vertical:'middle', horizontal:'center'};
+    }
+  }
+  ws.getRow(1).height = 22;
+  ws.getRow(2).height = 34;
+
+  try{
+    const buf = await wb.xlsx.writeBuffer();
+    const blob = new Blob([buf], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const stamp = new Date().toISOString().slice(0,10);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `成績登打表_${stamp}.xlsx`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 4000);
+    toast('已匯出 Excel，填好分數（或請假／補課等文字）後可用「匯入 Excel 成績」帶回系統');
+  }catch(err){
+    console.error('Excel 匯出失敗', err);
+    showInfoModal('Excel 匯出失敗（' + (err && err.message ? err.message : '未知錯誤') + '），請重新整理頁面後再試一次。');
+  }
 }
 function importGradeExcel(evt){
   const file = evt.target.files[0];
@@ -2500,10 +2606,26 @@ function importGradeExcel(evt){
       const data = new Uint8Array(e.target.result);
       const wb = XLSX.read(data, {type:'array'});
       const sheet = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(sheet, {header:1, blankrows:false});
-      if(!rows.length){ showInfoModal('這個檔案裡沒有讀到資料。'); return; }
+      const rows = XLSX.utils.sheet_to_json(sheet, {header:1, blankrows:false, defval:''});
+      if(rows.length < 3){
+        showInfoModal('這個檔案裡沒有讀到足夠的資料，請確認上傳的是「匯出登打用 Excel」產生、且包含兩列標題與學生資料的完整檔案。');
+        return;
+      }
 
-      const header = rows[0] || [];
+      // 標題有兩列：第一列是日期（同一天的欄位會合併，讀進來時只有該天第一欄有值，
+      // 其餘欄位是空的，所以要把日期往右「補滿」）；第二列是每個項目的進度內容。
+      const dateRow = rows[0] || [];
+      const itemRow = rows[1] || [];
+      const colCount = Math.max(dateRow.length, itemRow.length);
+      let lastDate = '';
+      const colDates = [];
+      for(let c=0; c<colCount; c++){
+        if(c<2){ colDates.push(null); continue; }
+        const v = dateRow[c];
+        if(v!==undefined && v!==null && String(v).trim()!==''){ lastDate = String(v).trim(); }
+        colDates.push(lastDate);
+      }
+
       // Build a lookup from column label -> itemId, using EVERY item that has
       // ever had review progress entered (not just the current filtered view),
       // so an import still works even if the on-screen filters have changed
@@ -2512,13 +2634,20 @@ function importGradeExcel(evt){
       const labelToItemId = {};
       allItems.forEach(it=>{ labelToItemId[gradeColumnLabel(it)] = it.id; });
 
-      const colItemIds = header.map((h,idx)=> idx<2 ? null : (labelToItemId[String(h||'').trim()] || null));
+      const colItemIds = [];
+      for(let c=0; c<colCount; c++){
+        if(c<2){ colItemIds.push(null); continue; }
+        const text = itemRow[c]==null ? '' : String(itemRow[c]).trim();
+        if(!text || !colDates[c]){ colItemIds.push(null); continue; }
+        const label = `${colDates[c]} ${text}`;
+        colItemIds.push(labelToItemId[label] || null);
+      }
       const matchedCols = colItemIds.filter(Boolean).length;
-      const unmatchedCols = header.length - 2 - matchedCols;
+      const unmatchedCols = colCount - 2 - matchedCols;
 
-      let updated = 0, skippedName = 0, skippedValue = 0;
+      let updated = 0, skippedValue = 0;
       const unmatchedNames = new Set();
-      for(let r=1; r<rows.length; r++){
+      for(let r=2; r<rows.length; r++){
         const row = rows[r];
         if(!row) continue;
         const name = row[1]==null ? '' : String(row[1]).trim();
@@ -2530,17 +2659,22 @@ function importGradeExcel(evt){
           if(!itemId) continue;
           const raw = row[c];
           if(raw===undefined || raw===null || String(raw).trim()===''){ continue; }
-          const num = Math.round(Number(raw));
-          if(isNaN(num)){ skippedValue++; continue; }
-          const clamped = Math.max(0, Math.min(100, num));
+          const trimmed = String(raw).trim();
           if(!state.scores[itemId]) state.scores[itemId] = {};
-          state.scores[itemId][st.id] = clamped;
+          if(/^-?\d+(\.\d+)?$/.test(trimmed)){
+            const num = Math.round(Number(trimmed));
+            if(isNaN(num)){ skippedValue++; continue; }
+            state.scores[itemId][st.id] = Math.max(0, Math.min(100, num));
+          }else{
+            // 非數字內容（例如「請假」「補課」）直接當文字狀態存入
+            state.scores[itemId][st.id] = trimmed;
+          }
           updated++;
         }
       }
       if(updated>0){ markDirty(); renderGradeGrid(); }
 
-      const msgParts = [`已更新 ${updated} 筆分數`];
+      const msgParts = [`已更新 ${updated} 筆分數／狀態`];
       if(unmatchedCols>0) msgParts.push(`${unmatchedCols} 個欄位標題對不到複習項目（可能是欄位標題被改過，或項目已被刪除）`);
       if(unmatchedNames.size>0) msgParts.push(`${unmatchedNames.size} 個姓名對不到目前的學生名單（${Array.from(unmatchedNames).slice(0,5).join('、')}${unmatchedNames.size>5?'…':''}）`);
       if(skippedValue>0) msgParts.push(`${skippedValue} 個分數格式看不懂已略過`);
@@ -2561,12 +2695,19 @@ function itemDetailText(it){
 }
 function setScore(inp){
   const itemId = inp.dataset.item, studentId = inp.dataset.student;
-  let v = inp.value;
-  if(v===''){ if(state.scores[itemId]) delete state.scores[itemId][studentId]; markDirty(); return; }
-  v = Math.max(0, Math.min(100, Math.round(Number(v))));
-  inp.value = v;
+  let v = inp.value.trim();
+  if(v===''){ if(state.scores[itemId]) delete state.scores[itemId][studentId]; inp.value=''; markDirty(); return; }
   if(!state.scores[itemId]) state.scores[itemId] = {};
-  state.scores[itemId][studentId] = v;
+  if(/^-?\d+(\.\d+)?$/.test(v)){
+    // pure number -> treat as a 0~100 score
+    const num = Math.max(0, Math.min(100, Math.round(Number(v))));
+    inp.value = num;
+    state.scores[itemId][studentId] = num;
+  }else{
+    // anything else -> treat as a text status (e.g. 請假／補課)
+    inp.value = v;
+    state.scores[itemId][studentId] = v;
+  }
   markDirty();
 }
 function gridKeyNav(evt, inp){
@@ -2582,51 +2723,6 @@ function gridKeyNav(evt, inp){
     const nextInput = targetRow.children[cellIndex].querySelector('input');
     if(nextInput) nextInput.focus();
   }
-}
-
-/* =========================================================
-   TAB4: PRINT PREVIEW (paginate by columns for A4 landscape)
-   ========================================================= */
-const COLS_PER_PAGE = 16; // item-columns per printed page (frozen 姓名/序號 columns repeat each page)
-
-function renderPrintPreview(){
-  const ym = document.getElementById('printMonthFilter').value || 'all';
-  const items = collectItems(ym);
-  const area = document.getElementById('printArea');
-  if(state.students.length===0 || items.length===0){
-    area.innerHTML = '<div class="empty-state"><span class="big">🖨️</span>目前沒有可列印的資料（需要學生名單與複習進度）</div>';
-    return;
-  }
-  const pages = [];
-  for(let i=0;i<items.length;i+=COLS_PER_PAGE){ pages.push(items.slice(i, i+COLS_PER_PAGE)); }
-
-  let html = '';
-  pages.forEach((pageItems, pIdx)=>{
-    html += `<div class="print-page"><h3>複習進度 成績表 ${ym==='all'?'':'（'+ym.replace('-','年')+'月）'}</h3><table>`;
-    html += '<tr><th rowspan="2">序號</th><th rowspan="2">姓名</th>';
-    let pi = 0;
-    while(pi < pageItems.length){
-      let pj = pi;
-      while(pj+1 < pageItems.length && pageItems[pj+1].date === pageItems[pi].date) pj++;
-      const colspan = pj - pi + 1;
-      html += `<th colspan="${colspan}">${pageItems[pi].date.slice(5).replace('-','/')}</th>`;
-      pi = pj + 1;
-    }
-    html += '</tr><tr>';
-    pageItems.forEach(it=> html += `<th title="${escapeHtml(itemDetailText(it))}">${escapeHtml(it.subject)}－${escapeHtml(it.text)}</th>`);
-    html += '</tr>';
-    state.students.forEach((st, idx)=>{
-      html += `<tr><td class="frozen">${idx+1}</td><td class="frozen">${escapeHtml(st.name)}</td>`;
-      pageItems.forEach(it=>{
-        const val = (state.scores[it.id] && state.scores[it.id][st.id]!==undefined) ? state.scores[it.id][st.id] : '';
-        const cellTitle = `${escapeHtml(st.name)} － ${escapeHtml(itemDetailText(it))}${val!==''?'\n分數：'+val:''}`;
-        html += `<td title="${cellTitle}">${val}</td>`;
-      });
-      html += '</tr>';
-    });
-    html += `</table><div class="page-tag">第 ${pIdx+1} / ${pages.length} 張</div></div>`;
-  });
-  area.innerHTML = html;
 }
 
 /* =========================================================
@@ -2790,12 +2886,13 @@ document.getElementById('calYear').value = calState.year;
 document.getElementById('calMonth').value = calState.month;
 renderSubjects();
 renderStudents();
+renderScoreTextChips();
 renderCalendar();
 updateSaveStatus();
 if(restored){ toast('已自動載入上次在此瀏覽器儲存的資料'); }
 
 
-return { markDirty, markSaved, updateSaveStatus, saveToLocalStorage, loadFromLocalStorage, resetLocalData, uid, toast, showConfirmModal, showInfoModal, showPromptModal, switchTab, exportBackup, importBackup, refreshAll, renderSubjects, addSubject, renderStudents, addStudent, removeStudent, importStudentsExcel, pad2, fmtDate, ymKey, getMonthWeeks, shiftMonth, ensureDay, migrateDayShape, migrateMonthsShape, renderCalendar, subjectOptionsHtml, renderItemsList, syncItemsFromDOM, addItemRow, removeItemRow, moveItem, openDayModal, closeDayModal, saveDayModal, clearDay, getAllMonthKeys, collectItems, populateMonthFilter, getGradeFilterState, gradeColumnLabel, renderGradeGrid, clearGradeDateFilter, exportGradeExcel, importGradeExcel, itemDetailText, setScore, gridKeyNav, renderPrintPreview, populateStudentSelect, buildStudentReportHtml, renderJpegPreview, downloadJpeg, showJpegResult, downloadAllJpeg, escapeHtml };
+return { markDirty, markSaved, updateSaveStatus, saveToLocalStorage, loadFromLocalStorage, resetLocalData, uid, toast, showConfirmModal, showInfoModal, showPromptModal, switchTab, exportBackup, importBackup, refreshAll, renderSubjects, addSubject, renderScoreTextChips, addScoreTextOption, updateScoreTextDatalist, renderStudents, addStudent, removeStudent, importStudentsExcel, pad2, fmtDate, ymKey, getMonthWeeks, shiftMonth, ensureDay, migrateDayShape, migrateMonthsShape, renderCalendar, subjectOptionsHtml, renderItemsList, syncItemsFromDOM, addItemRow, removeItemRow, moveItem, openDayModal, closeDayModal, saveDayModal, clearDay, getAllMonthKeys, collectItems, populateMonthFilter, getGradeFilterState, gradeExcelDateLabel, gradeExcelItemText, gradeColumnLabel, renderGradeGrid, clearGradeDateFilter, exportGradeExcel, importGradeExcel, itemDetailText, setScore, gridKeyNav, populateStudentSelect, buildStudentReportHtml, renderJpegPreview, downloadJpeg, showJpegResult, downloadAllJpeg, escapeHtml };
 })();
 </script>
 </div>
