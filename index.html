@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>補習班 工具箱</title>
+<title>大昇文理補習班 工具箱</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" crossorigin="anonymous">
@@ -12,75 +12,75 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <style>
+/* ---------- shared shell / reset ---------- */
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{min-height:100vh;}
+.mod-root{display:none;}
+.mod-root.is-active{display:block;}
+.back-to-menu-btn{
+  display:block; width:100%; text-align:left; background:rgba(255,255,255,.08);
+  color:#fff4d9; border:1px solid rgba(255,244,217,.35); border-radius:10px;
+  padding:8px 12px; font-size:14px; cursor:pointer; margin-bottom:10px;
+  font-family:"Microsoft JhengHei","PingFang TC","微軟正黑體","Noto Sans TC",sans-serif;
+}
+.back-to-menu-btn:hover{background:rgba(255,255,255,.18);}
 
-  /* ---------- shared shell / reset ---------- */
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body{min-height:100vh;}
-  .mod-root{display:none;}
-  .mod-root.is-active{display:block;}
-  .back-to-menu-btn{
-    display:block; width:100%; text-align:left; background:rgba(255,255,255,.08);
-    color:#fff4d9; border:1px solid rgba(255,244,217,.35); border-radius:10px;
-    padding:8px 12px; font-size:14px; cursor:pointer; margin-bottom:10px;
-    font-family:"Microsoft JhengHei","PingFang TC","微軟正黑體","Noto Sans TC",sans-serif;
-  }
-  .back-to-menu-btn:hover{background:rgba(255,255,255,.18);}
+/* ---------- module select screen ---------- */
+#moduleSelectRoot{
+  min-height:100vh; align-items:center; justify-content:center;
+  background:#FBF6EC; font-family:"Microsoft JhengHei","PingFang TC","微軟正黑體","Noto Sans TC",sans-serif;
+  padding:32px;
+}
+#moduleSelectRoot.is-active{ display:flex; }
+.module-select-inner{max-width:760px; width:100%; text-align:center;}
+.module-select-inner h1{font-size:28px; color:#4A2F18; margin-bottom:8px;}
+.module-select-inner p.sub{color:#6B6459; font-size:16px; margin-bottom:36px;}
+.module-cards{display:flex; gap:24px; flex-wrap:wrap; justify-content:center;}
+.module-card{
+  flex:1; min-width:260px; max-width:320px; background:#fff; border:2px solid #E4D9BE;
+  border-radius:18px; padding:32px 24px; cursor:pointer; text-align:left;
+  box-shadow:0 2px 10px rgba(43,42,40,.08); transition:transform .1s, box-shadow .1s;
+}
+.module-card:hover{transform:translateY(-3px); box-shadow:0 8px 24px rgba(43,42,40,.15); border-color:#C79A3C;}
+.module-card .icon{font-size:40px; margin-bottom:14px; display:block;}
+.module-card h2{font-size:21px; color:#4A2F18; margin:0 0 10px;}
+.module-card p{font-size:15px; color:#6B6459; line-height:1.6; margin:0;}
+@media (max-width:680px){
+  .module-cards{flex-direction:column; align-items:stretch;}
+  .module-card{max-width:none;}
+}
 
-  /* ---------- module select screen ---------- */
-  #moduleSelectRoot{
-    min-height:100vh; align-items:center; justify-content:center;
-    background:#FBF6EC; font-family:"Microsoft JhengHei","PingFang TC","微軟正黑體","Noto Sans TC",sans-serif;
-    padding:32px;
-  }
-  #moduleSelectRoot.is-active{ display:flex; }
-  .module-select-inner{max-width:760px; width:100%; text-align:center;}
-  .module-select-inner h1{font-size:28px; color:#4A2F18; margin-bottom:8px;}
-  .module-select-inner p.sub{color:#6B6459; font-size:16px; margin-bottom:36px;}
-  .module-cards{display:flex; gap:24px; flex-wrap:wrap; justify-content:center;}
-  .module-card{
-    flex:1; min-width:260px; max-width:320px; background:#fff; border:2px solid #E4D9BE;
-    border-radius:18px; padding:32px 24px; cursor:pointer; text-align:left;
-    box-shadow:0 2px 10px rgba(43,42,40,.08); transition:transform .1s, box-shadow .1s;
-  }
-  .module-card:hover{transform:translateY(-3px); box-shadow:0 8px 24px rgba(43,42,40,.15); border-color:#C79A3C;}
-  .module-card .icon{font-size:40px; margin-bottom:14px; display:block;}
-  .module-card h2{font-size:21px; color:#4A2F18; margin:0 0 10px;}
-  .module-card p{font-size:15px; color:#6B6459; line-height:1.6; margin:0;}
-  @media (max-width:680px){
-    .module-cards{flex-direction:column; align-items:stretch;}
-    .module-card{max-width:none;}
-  }
+/* ---------- password gate ---------- */
+#passwordGateRoot{
+  min-height:100vh; align-items:center; justify-content:center;
+  background:#FBF6EC; font-family:"Microsoft JhengHei","PingFang TC","微軟正黑體","Noto Sans TC",sans-serif;
+  padding:32px;
+}
+#passwordGateRoot.is-active{ display:flex; }
+.gate-card{
+  max-width:360px; width:100%; background:#fff; border:2px solid #E4D9BE;
+  border-radius:18px; padding:36px 30px; text-align:center;
+  box-shadow:0 4px 18px rgba(43,42,40,.10);
+}
+.gate-card .icon{font-size:40px; margin-bottom:10px; display:block;}
+.gate-card h1{font-size:20px; color:#4A2F18; margin:0 0 6px;}
+.gate-card p.sub{color:#6B6459; font-size:14px; margin:0 0 22px;}
+.gate-input{
+  width:100%; font-size:20px; letter-spacing:4px; text-align:center;
+  padding:12px 14px; border-radius:10px; border:2px solid #D8CBAA;
+  margin-bottom:14px; box-sizing:border-box;
+}
+.gate-input:focus{outline:none; border-color:#C79A3C;}
+.gate-remember{display:flex; align-items:center; justify-content:center; gap:8px; font-size:13.5px; color:#6B6459; margin-bottom:18px;}
+.gate-btn{
+  width:100%; background:#C79A3C; color:#fff; border:none; border-radius:10px;
+  font-size:16px; font-weight:700; padding:12px; cursor:pointer;
+}
+.gate-btn:hover{background:#b8853a;}
+.gate-error{color:#B5352E; font-size:13.5px; margin:12px 0 0; display:none;}
 
-  /* ---------- password gate ---------- */
-  #passwordGateRoot{
-    min-height:100vh; align-items:center; justify-content:center;
-    background:#FBF6EC; font-family:"Microsoft JhengHei","PingFang TC","微軟正黑體","Noto Sans TC",sans-serif;
-    padding:32px;
-  }
-  #passwordGateRoot.is-active{ display:flex; }
-  .gate-card{
-    max-width:360px; width:100%; background:#fff; border:2px solid #E4D9BE;
-    border-radius:18px; padding:36px 30px; text-align:center;
-    box-shadow:0 4px 18px rgba(43,42,40,.10);
-  }
-  .gate-card .icon{font-size:40px; margin-bottom:10px; display:block;}
-  .gate-card h1{font-size:20px; color:#4A2F18; margin:0 0 6px;}
-  .gate-card p.sub{color:#6B6459; font-size:14px; margin:0 0 22px;}
-  .gate-input{
-    width:100%; font-size:20px; letter-spacing:4px; text-align:center;
-    padding:12px 14px; border-radius:10px; border:2px solid #D8CBAA;
-    margin-bottom:14px; box-sizing:border-box;
-  }
-  .gate-input:focus{outline:none; border-color:#C79A3C;}
-  .gate-remember{display:flex; align-items:center; justify-content:center; gap:8px; font-size:13.5px; color:#6B6459; margin-bottom:18px;}
-  .gate-btn{
-    width:100%; background:#C79A3C; color:#fff; border:none; border-radius:10px;
-    font-size:16px; font-weight:700; padding:12px; cursor:pointer;
-  }
-  .gate-btn:hover{background:#b8853a;}
-  .gate-error{color:#B5352E; font-size:13.5px; margin:12px 0 0; display:none;}
-
+/* ===================== .mod-order (訂餐通知單產生系統) ===================== */
 
   :root {
     --bg:#ffffe5;
@@ -275,6 +275,8 @@
   .mod-order .modal-box .btn-row { margin-top:20px; text-align:right; }
 
 
+
+/* ===================== .mod-review (複習進度・成績登記系統) ===================== */
 
   :root {
     --paper:#ffffe5;
@@ -551,11 +553,10 @@
 </head>
 <body>
 
-
 <div id="passwordGateRoot" class="mod-root">
   <div class="gate-card">
     <span class="icon">🔒</span>
-    <h1>補習班 工具箱</h1>
+    <h1>大昇文理補習班 工具箱</h1>
     <p class="sub">請輸入密碼以繼續</p>
     <input type="password" id="gatePasswordInput" class="gate-input" placeholder="請輸入密碼" maxlength="20" inputmode="numeric" onkeydown="if(event.key==='Enter'){checkGatePassword();}">
     <label class="gate-remember"><input type="checkbox" id="gateRemember" checked> 記住這台裝置</label>
@@ -564,10 +565,9 @@
   </div>
 </div>
 
-
 <div id="moduleSelectRoot" class="mod-root">
   <div class="module-select-inner">
-    <h1>🎓 補習班 工具箱</h1>
+    <h1>🎓 大昇文理補習班 工具箱</h1>
     <p class="sub">請選擇要使用的功能</p>
     <div class="module-cards">
       <div class="module-card" onclick="showModule('order')">
@@ -578,17 +578,18 @@
       <div class="module-card" onclick="showModule('review')">
         <span class="icon">📘</span>
         <h2>複習進度・成績登記系統</h2>
-        <p>登打每月複習進度與成績，產生個人成績通知單 JPEG，並可匯出/匯入 Excel 登打成績。</p>
+        <p>登打每月複習進度與成績，產生 A4 列印表與個人成績通知單 JPEG。</p>
       </div>
     </div>
   </div>
 </div>
 
-
 <div id="modOrderRoot" class="mod-root mod-order">
+
+
 <div class="app">
   <nav class="sidebar">
-    <button class="back-to-menu-btn" onclick="showModule('select')">← 返回主選單</button>
+  <button class="back-to-menu-btn" onclick="showModule('select')">← 返回主選單</button>
     <h1><img src="data:image/jpeg;base64,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" alt="亞米" class="title-cat-icon"> 訂餐通知單產生系統</h1>
     <div class="step-item active" id="navStep1" onclick="OrderApp.goStep(1)">
       <div class="step-num">1</div>
@@ -619,12 +620,12 @@
           點選下方框框選擇檔案，或直接把檔案拖曳進來即可。
         </div>
 
-        <div class="dropzone" id="dropzone" onclick="OrderApp.$('fileInput').click()">
+        <div class="dropzone" id="dropzone" onclick="$('fileInput').click()">
           <div class="big-icon">📂</div>
           <p><b>把 Excel 檔案拖曳到這裡</b></p>
           <p class="sub">或點一下這裡選擇檔案</p>
           <div class="btn-row" onclick="event.stopPropagation()">
-            <button class="btn btn-primary" type="button" onclick="OrderApp.$('fileInput').click()">瀏覽並選擇檔案</button>
+            <button class="btn btn-primary" type="button" onclick="$('fileInput').click()">瀏覽並選擇檔案</button>
           </div>
           <p class="sub" style="margin-top:14px;">目前支援 Excel 檔（.xlsx）；Word 檔（.docx）匯入功能開發中<br>手機（iPhone / iPad）也可以使用，按「瀏覽並選擇檔案」後選擇「檔案」App，即可從 iCloud 雲碟或已連結的雲端硬碟中選取</p>
           <input type="file" id="fileInput" accept=".xlsx,.xls,.docx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
@@ -773,8 +774,247 @@
 <div class="modal-overlay" id="modalOverlay" style="display:none;">
   <div class="modal-box" id="modalBox"></div>
 </div>
+
+
+
+</div>
+
+<div id="modReviewRoot" class="mod-root mod-review">
+
+
+<div class="app-body">
+<nav class="sidebar" id="sidebar">
+  <button class="back-to-menu-btn" onclick="showModule('select')">← 返回主選單</button>
+  <div class="sidebar-brand">
+    <span class="sidebar-avatar">🎓</span>
+    <span class="sidebar-title">複習進度<br>成績登記系統</span>
+  </div>
+  <div class="sidebar-sub">每月複習進度 → 成績登打 → JPEG 匯出</div>
+
+  <div class="sidebar-backup">
+    <button class="btn btn-gold btn-sm" onclick="ReviewApp.exportBackup()">📥 下載備份檔</button>
+    <label class="btn btn-outline btn-sm" style="cursor:pointer;">
+      📤 匯入備份檔
+      <input type="file" accept="application/json" style="display:none" onchange="ReviewApp.importBackup(event)">
+    </label>
+    <span class="status" id="saveStatus">尚未開始輸入資料</span>
+    <button class="reset-link" onclick="ReviewApp.resetLocalData()">🗑️ 清除本機資料，重新開始</button>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <button class="tab-btn active" data-tab="settings" onclick="ReviewApp.switchTab('settings')"><span class="tab-num">1</span><span class="tab-label">科目與學生</span></button>
+  <button class="tab-btn" data-tab="calendar" onclick="ReviewApp.switchTab('calendar')"><span class="tab-num">2</span><span class="tab-label">複習進度月曆</span></button>
+  <button class="tab-btn" data-tab="grades" onclick="ReviewApp.switchTab('grades')"><span class="tab-num">3</span><span class="tab-label">成績登打</span></button>
+  <button class="tab-btn" data-tab="jpeg" onclick="ReviewApp.switchTab('jpeg')"><span class="tab-num">4</span><span class="tab-label">個人成績 JPEG</span></button>
+</nav>
+
+<main class="content-area">
+
+<!-- TAB 1: SETTINGS -->
+<div class="tab-panel active" id="tab-settings">
+  <div class="card">
+    <h2>科目管理</h2>
+    <p class="hint">先建立科目名稱，之後輸入複習進度時可直接選擇。</p>
+    <div class="chip-list" id="subjectChips"></div>
+    <div class="inline-form">
+      <input type="text" id="newSubjectInput" placeholder="輸入新科目名稱，例如：國文">
+      <button class="btn btn-primary" onclick="ReviewApp.addSubject()">＋ 新增科目</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>成績文字選項</h2>
+    <p class="hint">成績登打表的每一格可以輸入 0~100 的數字，也可以直接輸入文字（例如「請假」「補課」），下面的清單只是輸入時的建議選項，可自行新增、修改、刪除，不會限制成績格只能填清單裡的文字。</p>
+    <div class="chip-list" id="scoreTextChips"></div>
+    <div class="inline-form">
+      <input type="text" id="newScoreTextInput" placeholder="輸入新的文字選項，例如：請假">
+      <button class="btn btn-primary" onclick="ReviewApp.addScoreTextOption()">＋ 新增選項</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>學生名單</h2>
+    <p class="hint">建立學生名單後，成績登打與 JPEG 匯出都會依此名單顯示。也可以直接匯入 Excel 檔：系統會在前幾列中尋找「姓名」欄位標題，並讀取該欄位下方、同一欄不同列的姓名（例如原本附件表格「序號｜姓名」的格式）；若找不到標題則預設讀取第一欄。</p>
+    <div class="inline-form" style="margin-bottom:14px;">
+      <input type="text" id="newStudentInput" placeholder="輸入學生姓名">
+      <button class="btn btn-primary" onclick="ReviewApp.addStudent()">＋ 新增學生</button>
+      <label class="btn btn-outline" style="cursor:pointer;">
+        📄 從 Excel 匯入名單
+        <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="ReviewApp.importStudentsExcel(event)">
+      </label>
+    </div>
+    <table class="roster" id="reviewStudentTable"></table>
+  </div>
+</div>
+
+<!-- TAB 2: CALENDAR -->
+<div class="tab-panel" id="tab-calendar">
+  <div class="card">
+    <h2>每月複習進度</h2>
+    <p class="hint">選擇年月後會顯示週一至週五的月曆，點擊日期即可新增當天的複習進度，每一筆再自行設定科目，筆數沒有上限。</p>
+    <div class="cal-controls">
+      <div class="arrows">
+        <button class="btn btn-outline btn-sm" onclick="ReviewApp.shiftMonth(-1)">◀ 上個月</button>
+        <button class="btn btn-outline btn-sm" onclick="ReviewApp.shiftMonth(1)">下個月 ▶</button>
+      </div>
+      <label>年：</label><input type="number" id="calYear" style="width:100px">
+      <label>月：</label><input type="number" id="calMonth" min="1" max="12" style="width:70px">
+      <button class="btn btn-primary" onclick="ReviewApp.renderCalendar()">產生月曆</button>
+    </div>
+    <table class="calendar" id="calendarTable"></table>
+  </div>
+</div>
+
+<!-- TAB 3: GRADES -->
+<div class="tab-panel" id="tab-grades">
+  <div class="card">
+    <h2>成績登打表</h2>
+    <p class="hint">下方會列出「有輸入複習進度」的所有項目，可以直接在表格中手動輸入 0~100 的分數，也可以輸入文字（例如「請假」「補課」，輸入時會有建議選項，也可以自行輸入其他文字），或先「匯出登打用 Excel」給老師手寫或用電腦填寫，再「匯入 Excel 成績」一次帶回系統。同一天的項目會合併顯示日期，方便閱讀。可以用「顯示範圍」＋「日期區間」篩選要看的複習項目，也可以用「姓名搜尋」快速找到某位學生。可用鍵盤上下鍵在同一欄快速移動。</p>
+    <div class="inline-form" style="margin-bottom:10px;">
+      <label>顯示範圍：</label>
+      <select id="gradeMonthFilter" onchange="ReviewApp.renderGradeGrid()"></select>
+      <label style="margin-left:10px;">日期區間：</label>
+      <input type="date" id="gradeDateFrom" onchange="ReviewApp.renderGradeGrid()">
+      <span>～</span>
+      <input type="date" id="gradeDateTo" onchange="ReviewApp.renderGradeGrid()">
+      <button class="btn btn-ghost btn-sm" onclick="ReviewApp.clearGradeDateFilter()">清除日期篩選</button>
+    </div>
+    <div class="inline-form" style="margin-bottom:14px;">
+      <label>🔍 姓名搜尋：</label>
+      <input type="text" id="gradeNameSearch" placeholder="輸入學生姓名關鍵字" oninput="ReviewApp.renderGradeGrid()" style="min-width:200px;">
+    </div>
+    <div class="inline-form" style="margin-bottom:14px;">
+      <button class="btn btn-gold btn-sm" onclick="ReviewApp.exportGradeExcel()">📊 匯出登打用 Excel</button>
+      <label class="btn btn-outline btn-sm" style="cursor:pointer;">
+        📥 匯入 Excel 成績
+        <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="ReviewApp.importGradeExcel(event)">
+      </label>
+      <span class="hint" style="margin:0;">（匯出、匯入請使用同一份 Excel，欄位標題才能對得上）</span>
+    </div>
+    <div class="grid-wrap"><table class="gradegrid" id="gradeGrid"></table></div>
+    <datalist id="scoreTextOptionsList"></datalist>
+  </div>
+</div>
+
+<!-- TAB 4: JPEG -->
+<div class="tab-panel" id="tab-jpeg">
+  <div class="card">
+    <h2>個人成績 JPEG 匯出</h2>
+    <p class="hint">選擇一位學生與月份（或日期區間），會依「科目」分開列出各章節進度、成績與複習日期，可直接下載成一張圖片。</p>
+    <div class="inline-form" style="margin-bottom:10px;">
+      <label>選擇學生：</label>
+      <select id="jpegStudentSelect" onchange="ReviewApp.renderJpegPreview()"></select>
+    </div>
+    <div class="inline-form" style="margin-bottom:10px;">
+      <label>顯示範圍：</label>
+      <select id="jpegMonthFilter" onchange="ReviewApp.renderJpegPreview()"></select>
+      <label style="margin-left:10px;">日期區間：</label>
+      <input type="date" id="jpegDateFrom" onchange="ReviewApp.renderJpegPreview()">
+      <span>～</span>
+      <input type="date" id="jpegDateTo" onchange="ReviewApp.renderJpegPreview()">
+      <button class="btn btn-ghost btn-sm" onclick="ReviewApp.clearJpegDateFilter()">清除日期篩選</button>
+    </div>
+    <div class="inline-form" style="margin-bottom:16px;">
+      <button class="btn btn-primary" onclick="ReviewApp.downloadJpeg()">⬇️ 下載此學生 JPEG</button>
+      <button class="btn btn-outline" onclick="ReviewApp.downloadAllJpeg()">⬇️ 全部學生依序下載</button>
+    </div>
+    <div style="overflow:auto;">
+      <div class="jpeg-render" id="jpegRender"></div>
+    </div>
+    <div id="jpegResultWrap" style="display:none; margin-top:20px;">
+      <p class="hint" style="color:var(--board-dark); font-weight:700;">✅ 圖片已產生。如果沒有自動開始下載，請直接在下面的圖片上「長按」（手機）或按滑鼠右鍵（電腦）選擇「另存圖片」／「儲存圖片」：</p>
+      <img id="jpegResultImg" style="max-width:100%; border:1px solid #ccc; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.12);">
+    </div>
+  </div>
+</div>
+
+</main>
+</div><!-- /.app-body -->
+
+<!-- MODAL: day editor -->
+<div class="modal-overlay" id="dayModalOverlay">
+  <div class="modal">
+    <h3 id="dayModalTitle">日期</h3>
+    <div class="subject-block main">
+      <h4>本日複習進度</h4>
+      <p class="hint" style="margin:0 0 10px;">先按「新增進度」，再為每一筆設定科目與內容，筆數沒有上限。</p>
+      <div id="dayItemsList"></div>
+      <button class="btn btn-ghost btn-sm" onclick="ReviewApp.addItemRow()">＋ 新增進度</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-red" onclick="ReviewApp.clearDay()">清除本日資料</button>
+      <button class="btn btn-outline" onclick="ReviewApp.closeDayModal()">取消</button>
+      <button class="btn btn-primary" onclick="ReviewApp.saveDayModal()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- MODAL: generic confirm / info / prompt (replaces native confirm/alert/prompt,
+     which are silently blocked in some embedded/in-app browsers) -->
+<div class="modal-overlay" id="genericModalOverlay">
+  <div class="modal" style="max-width:440px;">
+    <h3 id="genericModalTitle">請確認</h3>
+    <p id="genericModalMessage" style="font-size:17px; line-height:1.7; white-space:pre-line; color:var(--ink);"></p>
+    <input type="text" id="genericModalInput" style="display:none; width:100%; margin-top:6px;">
+    <div class="modal-actions">
+      <button class="btn btn-outline" id="genericModalCancel">取消</button>
+      <button class="btn btn-primary" id="genericModalOk">確定</button>
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+<script>
+var TOOLBOX_PASSWORD = '814793';
+var TOOLBOX_AUTH_KEY = 'toolboxAuthed';
+
+function showModule(name){
+  document.getElementById('passwordGateRoot').classList.remove('is-active');
+  document.getElementById('moduleSelectRoot').classList.remove('is-active');
+  document.getElementById('modOrderRoot').classList.remove('is-active');
+  document.getElementById('modReviewRoot').classList.remove('is-active');
+  if(name==='gate'){ document.getElementById('passwordGateRoot').classList.add('is-active'); }
+  else if(name==='order'){ document.getElementById('modOrderRoot').classList.add('is-active'); }
+  else if(name==='review'){ document.getElementById('modReviewRoot').classList.add('is-active'); }
+  else{ document.getElementById('moduleSelectRoot').classList.add('is-active'); }
+  window.scrollTo(0,0);
+}
+
+function checkGatePassword(){
+  var input = document.getElementById('gatePasswordInput');
+  var errEl = document.getElementById('gateError');
+  if(input.value === TOOLBOX_PASSWORD){
+    var remember = document.getElementById('gateRemember').checked;
+    if(remember){
+      try{ localStorage.setItem(TOOLBOX_AUTH_KEY, 'yes'); }catch(e){}
+    }
+    errEl.style.display = 'none';
+    input.value = '';
+    showModule('select');
+  } else {
+    errEl.style.display = 'block';
+    input.value = '';
+    input.focus();
+  }
+}
+
+(function(){
+  var authed = false;
+  try{ authed = localStorage.getItem(TOOLBOX_AUTH_KEY) === 'yes'; }catch(e){}
+  if(authed){ showModule('select'); }
+  else{ showModule('gate'); }
+})();
+</script>
+
 <script>
 const OrderApp = (function(){
+
 /* ===================== 全域狀態 ===================== */
 const state = {
   month: '',
@@ -1586,186 +1826,14 @@ function buildCalendarWeeks(year, month, orderedDates){
   return weeks;
 }
 
-return { $, storageGetJSON, storageSetJSON, refreshSharedData, saveCourseOptionsShared, saveBankPresetsShared, getCourseOptions, getBankPresets, loadJSON, saveJSON, goStep, handleFile, loadSampleData, parseWorkbook, applyDefaultSettings, rebuildCourseSelect, rebuildBankSelect, updateBankDetail, getSettings, toMinguoDisplay, onSettingsChange, renderStudentTable, updateGrade, updateSkipTuition, escapeHtml, showModal, closeModal, showInfoModal, showConfirmModal, runPendingConfirm, openCourseModal, saveNewCourse, deleteCurrentCourse, openBankModal, saveNewBank, deleteCurrentBank, renderExportList, filterStudentList, toggleAllChecks, updateSelectedCount, previewStudent, downloadCurrentSingle, triggerDownload, downloadAllZip, renderStudentToJPEG, computeMealFinance, buildNoticeHTML, buildCalendarWeeks };
+
+return { storageGetJSON, storageSetJSON, refreshSharedData, saveCourseOptionsShared, saveBankPresetsShared, getCourseOptions, getBankPresets, loadJSON, saveJSON, goStep, handleFile, loadSampleData, parseWorkbook, applyDefaultSettings, rebuildCourseSelect, rebuildBankSelect, updateBankDetail, getSettings, toMinguoDisplay, onSettingsChange, renderStudentTable, updateGrade, updateSkipTuition, escapeHtml, showModal, closeModal, showInfoModal, showConfirmModal, runPendingConfirm, openCourseModal, saveNewCourse, deleteCurrentCourse, openBankModal, saveNewBank, deleteCurrentBank, renderExportList, filterStudentList, toggleAllChecks, updateSelectedCount, previewStudent, downloadCurrentSingle, triggerDownload, downloadAllZip, renderStudentToJPEG, computeMealFinance, buildNoticeHTML, buildCalendarWeeks };
 })();
 </script>
-</div>
 
-<div id="modReviewRoot" class="mod-root mod-review">
-<div class="app-body">
-<nav class="sidebar" id="sidebar">
-  <button class="back-to-menu-btn" onclick="showModule('select')">← 返回主選單</button>
-  <div class="sidebar-brand">
-    <span class="sidebar-avatar">🎓</span>
-    <span class="sidebar-title">複習進度<br>成績登記系統</span>
-  </div>
-  <div class="sidebar-sub">每月複習進度 → 成績登打 → JPEG 匯出</div>
-
-  <div class="sidebar-backup">
-    <button class="btn btn-gold btn-sm" onclick="ReviewApp.exportBackup()">📥 下載備份檔</button>
-    <label class="btn btn-outline btn-sm" style="cursor:pointer;">
-      📤 匯入備份檔
-      <input type="file" accept="application/json" style="display:none" onchange="ReviewApp.importBackup(event)">
-    </label>
-    <span class="status" id="saveStatus">尚未開始輸入資料</span>
-    <button class="reset-link" onclick="ReviewApp.resetLocalData()">🗑️ 清除本機資料，重新開始</button>
-  </div>
-
-  <div class="sidebar-divider"></div>
-
-  <button class="tab-btn active" data-tab="settings" onclick="ReviewApp.switchTab('settings')"><span class="tab-num">1</span><span class="tab-label">科目與學生</span></button>
-  <button class="tab-btn" data-tab="calendar" onclick="ReviewApp.switchTab('calendar')"><span class="tab-num">2</span><span class="tab-label">複習進度月曆</span></button>
-  <button class="tab-btn" data-tab="grades" onclick="ReviewApp.switchTab('grades')"><span class="tab-num">3</span><span class="tab-label">成績登打</span></button>
-  <button class="tab-btn" data-tab="jpeg" onclick="ReviewApp.switchTab('jpeg')"><span class="tab-num">4</span><span class="tab-label">個人成績 JPEG</span></button>
-</nav>
-
-<main class="content-area">
-
-<!-- TAB 1: SETTINGS -->
-<div class="tab-panel active" id="tab-settings">
-  <div class="card">
-    <h2>科目管理</h2>
-    <p class="hint">先建立科目名稱，之後輸入複習進度時可直接選擇。</p>
-    <div class="chip-list" id="subjectChips"></div>
-    <div class="inline-form">
-      <input type="text" id="newSubjectInput" placeholder="輸入新科目名稱，例如：國文">
-      <button class="btn btn-primary" onclick="ReviewApp.addSubject()">＋ 新增科目</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>成績文字選項</h2>
-    <p class="hint">成績登打表的每一格可以輸入 0~100 的數字，也可以直接輸入文字（例如「請假」「補課」），下面的清單只是輸入時的建議選項，可自行新增、修改、刪除，不會限制成績格只能填清單裡的文字。</p>
-    <div class="chip-list" id="scoreTextChips"></div>
-    <div class="inline-form">
-      <input type="text" id="newScoreTextInput" placeholder="輸入新的文字選項，例如：請假">
-      <button class="btn btn-primary" onclick="ReviewApp.addScoreTextOption()">＋ 新增選項</button>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>學生名單</h2>
-    <p class="hint">建立學生名單後，成績登打與 JPEG 匯出都會依此名單顯示。也可以直接匯入 Excel 檔：系統會在前幾列中尋找「姓名」欄位標題，並讀取該欄位下方、同一欄不同列的姓名（例如原本附件表格「序號｜姓名」的格式）；若找不到標題則預設讀取第一欄。</p>
-    <div class="inline-form" style="margin-bottom:14px;">
-      <input type="text" id="newStudentInput" placeholder="輸入學生姓名">
-      <button class="btn btn-primary" onclick="ReviewApp.addStudent()">＋ 新增學生</button>
-      <label class="btn btn-outline" style="cursor:pointer;">
-        📄 從 Excel 匯入名單
-        <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="ReviewApp.importStudentsExcel(event)">
-      </label>
-    </div>
-    <table class="roster" id="reviewStudentTable"></table>
-  </div>
-</div>
-
-<!-- TAB 2: CALENDAR -->
-<div class="tab-panel" id="tab-calendar">
-  <div class="card">
-    <h2>每月複習進度</h2>
-    <p class="hint">選擇年月後會顯示週一至週五的月曆，點擊日期即可新增當天的複習進度，每一筆再自行設定科目，筆數沒有上限。</p>
-    <div class="cal-controls">
-      <div class="arrows">
-        <button class="btn btn-outline btn-sm" onclick="ReviewApp.shiftMonth(-1)">◀ 上個月</button>
-        <button class="btn btn-outline btn-sm" onclick="ReviewApp.shiftMonth(1)">下個月 ▶</button>
-      </div>
-      <label>年：</label><input type="number" id="calYear" style="width:100px">
-      <label>月：</label><input type="number" id="calMonth" min="1" max="12" style="width:70px">
-      <button class="btn btn-primary" onclick="ReviewApp.renderCalendar()">產生月曆</button>
-    </div>
-    <table class="calendar" id="calendarTable"></table>
-  </div>
-</div>
-
-<!-- TAB 3: GRADES -->
-<div class="tab-panel" id="tab-grades">
-  <div class="card">
-    <h2>成績登打表</h2>
-    <p class="hint">下方會列出「有輸入複習進度」的所有項目，可以直接在表格中手動輸入 0~100 的分數，也可以輸入文字（例如「請假」「補課」，輸入時會有建議選項，也可以自行輸入其他文字），或先「匯出登打用 Excel」給老師手寫或用電腦填寫，再「匯入 Excel 成績」一次帶回系統。同一天的項目會合併顯示日期，方便閱讀。可以用「顯示範圍」＋「日期區間」篩選要看的複習項目，也可以用「姓名搜尋」快速找到某位學生。可用鍵盤上下鍵在同一欄快速移動。</p>
-    <div class="inline-form" style="margin-bottom:10px;">
-      <label>顯示範圍：</label>
-      <select id="gradeMonthFilter" onchange="ReviewApp.renderGradeGrid()"></select>
-      <label style="margin-left:10px;">日期區間：</label>
-      <input type="date" id="gradeDateFrom" onchange="ReviewApp.renderGradeGrid()">
-      <span>～</span>
-      <input type="date" id="gradeDateTo" onchange="ReviewApp.renderGradeGrid()">
-      <button class="btn btn-ghost btn-sm" onclick="ReviewApp.clearGradeDateFilter()">清除日期篩選</button>
-    </div>
-    <div class="inline-form" style="margin-bottom:14px;">
-      <label>🔍 姓名搜尋：</label>
-      <input type="text" id="gradeNameSearch" placeholder="輸入學生姓名關鍵字" oninput="ReviewApp.renderGradeGrid()" style="min-width:200px;">
-    </div>
-    <div class="inline-form" style="margin-bottom:14px;">
-      <button class="btn btn-gold btn-sm" onclick="ReviewApp.exportGradeExcel()">📊 匯出登打用 Excel</button>
-      <label class="btn btn-outline btn-sm" style="cursor:pointer;">
-        📥 匯入 Excel 成績
-        <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="ReviewApp.importGradeExcel(event)">
-      </label>
-      <span class="hint" style="margin:0;">（匯出、匯入請使用同一份 Excel，欄位標題才能對得上）</span>
-    </div>
-    <div class="grid-wrap"><table class="gradegrid" id="gradeGrid"></table></div>
-    <datalist id="scoreTextOptionsList"></datalist>
-  </div>
-</div>
-
-<!-- TAB 4: JPEG -->
-<div class="tab-panel" id="tab-jpeg">
-  <div class="card">
-    <h2>個人成績 JPEG 匯出</h2>
-    <p class="hint">選擇一位學生，會依「科目」分開列出各章節進度、成績與複習日期，可直接下載成一張圖片。</p>
-    <div class="inline-form" style="margin-bottom:16px;">
-      <label>選擇學生：</label>
-      <select id="jpegStudentSelect" onchange="ReviewApp.renderJpegPreview()"></select>
-      <button class="btn btn-primary" onclick="ReviewApp.downloadJpeg()">⬇️ 下載此學生 JPEG</button>
-      <button class="btn btn-outline" onclick="ReviewApp.downloadAllJpeg()">⬇️ 全部學生依序下載</button>
-    </div>
-    <div style="overflow:auto;">
-      <div class="jpeg-render" id="jpegRender"></div>
-    </div>
-    <div id="jpegResultWrap" style="display:none; margin-top:20px;">
-      <p class="hint" style="color:var(--board-dark); font-weight:700;">✅ 圖片已產生。如果沒有自動開始下載，請直接在下面的圖片上「長按」（手機）或按滑鼠右鍵（電腦）選擇「另存圖片」／「儲存圖片」：</p>
-      <img id="jpegResultImg" style="max-width:100%; border:1px solid #ccc; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.12);">
-    </div>
-  </div>
-</div>
-
-</main>
-</div><!-- /.app-body -->
-
-<!-- MODAL: day editor -->
-<div class="modal-overlay" id="dayModalOverlay">
-  <div class="modal">
-    <h3 id="dayModalTitle">日期</h3>
-    <div class="subject-block main">
-      <h4>本日複習進度</h4>
-      <p class="hint" style="margin:0 0 10px;">先按「新增進度」，再為每一筆設定科目與內容，筆數沒有上限。</p>
-      <div id="dayItemsList"></div>
-      <button class="btn btn-ghost btn-sm" onclick="ReviewApp.addItemRow()">＋ 新增進度</button>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-red" onclick="ReviewApp.clearDay()">清除本日資料</button>
-      <button class="btn btn-outline" onclick="ReviewApp.closeDayModal()">取消</button>
-      <button class="btn btn-primary" onclick="ReviewApp.saveDayModal()">儲存</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<!-- MODAL: generic confirm / info / prompt (replaces native confirm/alert/prompt,
-     which are silently blocked in some embedded/in-app browsers) -->
-<div class="modal-overlay" id="genericModalOverlay">
-  <div class="modal" style="max-width:440px;">
-    <h3 id="genericModalTitle">請確認</h3>
-    <p id="genericModalMessage" style="font-size:17px; line-height:1.7; white-space:pre-line; color:var(--ink);"></p>
-    <input type="text" id="genericModalInput" style="display:none; width:100%; margin-top:6px;">
-    <div class="modal-actions">
-      <button class="btn btn-outline" id="genericModalCancel">取消</button>
-      <button class="btn btn-primary" id="genericModalOk">確定</button>
-    </div>
-  </div>
-</div>
 <script>
 const ReviewApp = (function(){
+
 /* =========================================================
    STATE
    ========================================================= */
@@ -1908,7 +1976,7 @@ function switchTab(name){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='tab-'+name));
   if(name==='calendar') renderCalendar();
   if(name==='grades'){ populateMonthFilter('gradeMonthFilter'); renderGradeGrid(); }
-  if(name==='jpeg'){ populateStudentSelect(); renderJpegPreview(); }
+  if(name==='jpeg'){ populateStudentSelect(); populateMonthFilter('jpegMonthFilter'); renderJpegPreview(); }
 }
 
 /* =========================================================
@@ -1955,7 +2023,7 @@ function refreshAll(){
   renderSubjects(); renderStudents(); renderScoreTextChips();
   renderCalendar();
   populateMonthFilter('gradeMonthFilter'); renderGradeGrid();
-  populateStudentSelect(); renderJpegPreview();
+  populateStudentSelect(); populateMonthFilter('jpegMonthFilter'); renderJpegPreview();
 }
 
 /* =========================================================
@@ -2734,16 +2802,42 @@ function populateStudentSelect(){
   sel.innerHTML = state.students.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
   if(state.students.some(s=>s.id===cur)) sel.value = cur;
 }
-function buildStudentReportHtml(studentId){
+function getJpegFilterState(){
+  const ym = document.getElementById('jpegMonthFilter').value || 'all';
+  const dateFrom = document.getElementById('jpegDateFrom').value;
+  const dateTo = document.getElementById('jpegDateTo').value;
+  return {ym, dateFrom, dateTo};
+}
+function clearJpegDateFilter(){
+  document.getElementById('jpegDateFrom').value = '';
+  document.getElementById('jpegDateTo').value = '';
+  renderJpegPreview();
+}
+function jpegPeriodLabel(ym, dateFrom, dateTo){
+  if(dateFrom || dateTo){
+    return `${dateFrom || '最早'} ～ ${dateTo || '最新'}`;
+  }
+  if(ym && ym!=='all') return `${ym.replace('-','年')}月`;
+  return '全部期間';
+}
+function jpegPeriodFilenamePart(ym, dateFrom, dateTo){
+  if(dateFrom || dateTo) return `${dateFrom||'起'}~${dateTo||'迄'}`;
+  if(ym && ym!=='all') return ym;
+  return '全部期間';
+}
+function buildStudentReportHtml(studentId, filter){
   const st = state.students.find(s=>s.id===studentId);
   if(!st) return '<div class="empty-state">請先新增學生</div>';
-  const items = collectItems('all');
+  const {ym, dateFrom, dateTo} = filter || getJpegFilterState();
+  let items = collectItems(ym);
+  if(dateFrom) items = items.filter(it=> it.date >= dateFrom);
+  if(dateTo) items = items.filter(it=> it.date <= dateTo);
   const bySubject = {};
   items.forEach(it=>{
     if(!bySubject[it.subject]) bySubject[it.subject] = [];
     bySubject[it.subject].push(it);
   });
-  const curMonth = new Date().getMonth() + 1;
+  const periodLabel = jpegPeriodLabel(ym, dateFrom, dateTo);
   const orgName = state.orgName || '大昇文理補習班';
 
   let html = `
@@ -2756,11 +2850,11 @@ function buildStudentReportHtml(studentId){
     </div>
     <div class="jpeg-body">
       <p class="jpeg-greeting">親愛的家長，您好：</p>
-      <p class="jpeg-intro">貴子弟 <b>${escapeHtml(st.name)}</b> 於 <b>${curMonth} 月</b>份的複習進度與成績如下，請查照：</p>`;
+      <p class="jpeg-intro">貴子弟 <b>${escapeHtml(st.name)}</b> 於 <b>${escapeHtml(periodLabel)}</b> 的複習進度與成績如下，請查照：</p>`;
 
   const subjectNames = Object.keys(bySubject);
   if(subjectNames.length===0){
-    html += '<div class="empty-state">目前尚無複習進度資料</div></div>';
+    html += '<div class="empty-state">這段期間尚無複習進度資料</div></div>';
     return html;
   }
 
@@ -2783,7 +2877,7 @@ function renderJpegPreview(){
   const render = document.getElementById('jpegRender');
   document.getElementById('jpegResultWrap').style.display = 'none';
   if(!sel.value){ render.innerHTML = '<div class="empty-state">請先新增學生</div>'; return; }
-  render.innerHTML = buildStudentReportHtml(sel.value);
+  render.innerHTML = buildStudentReportHtml(sel.value, getJpegFilterState());
 }
 async function downloadJpeg(){
   const sel = document.getElementById('jpegStudentSelect');
@@ -2794,8 +2888,8 @@ async function downloadJpeg(){
   }
   const st = state.students.find(s=>s.id===sel.value);
   const render = document.getElementById('jpegRender');
-  const curMonth = new Date().getMonth() + 1;
-  const filename = `${st.name}_${curMonth}月複習成績單.jpg`;
+  const {ym, dateFrom, dateTo} = getJpegFilterState();
+  const filename = `${st.name}_${jpegPeriodFilenamePart(ym, dateFrom, dateTo)}複習成績單.jpg`;
   try{
     const canvas = await html2canvas(render, {scale:2, backgroundColor:'#ffffff', useCORS:true, allowTaint:true});
     showJpegResult(canvas, filename);
@@ -2838,19 +2932,20 @@ async function downloadAllJpeg(){
   if(!ok) return;
   const render = document.getElementById('jpegRender');
   const sel = document.getElementById('jpegStudentSelect');
-  const curMonth = new Date().getMonth() + 1;
+  const {ym, dateFrom, dateTo} = getJpegFilterState();
+  const filenamePart = jpegPeriodFilenamePart(ym, dateFrom, dateTo);
   let failCount = 0;
   for(const st of state.students){
     try{
       sel.value = st.id;
-      render.innerHTML = buildStudentReportHtml(st.id);
+      render.innerHTML = buildStudentReportHtml(st.id, {ym, dateFrom, dateTo});
       await new Promise(r=>setTimeout(r, 120));
       const canvas = await html2canvas(render, {scale:2, backgroundColor:'#ffffff', useCORS:true, allowTaint:true});
       const blob = await new Promise(res=> canvas.toBlob(res, 'image/jpeg', 0.92));
       if(!blob) throw new Error('toBlob failed');
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.download = `${st.name}_${curMonth}月複習成績單.jpg`;
+      link.download = `${st.name}_${filenamePart}複習成績單.jpg`;
       link.href = url;
       document.body.appendChild(link);
       link.click();
@@ -2892,54 +2987,10 @@ updateSaveStatus();
 if(restored){ toast('已自動載入上次在此瀏覽器儲存的資料'); }
 
 
-return { markDirty, markSaved, updateSaveStatus, saveToLocalStorage, loadFromLocalStorage, resetLocalData, uid, toast, showConfirmModal, showInfoModal, showPromptModal, switchTab, exportBackup, importBackup, refreshAll, renderSubjects, addSubject, renderScoreTextChips, addScoreTextOption, updateScoreTextDatalist, renderStudents, addStudent, removeStudent, importStudentsExcel, pad2, fmtDate, ymKey, getMonthWeeks, shiftMonth, ensureDay, migrateDayShape, migrateMonthsShape, renderCalendar, subjectOptionsHtml, renderItemsList, syncItemsFromDOM, addItemRow, removeItemRow, moveItem, openDayModal, closeDayModal, saveDayModal, clearDay, getAllMonthKeys, collectItems, populateMonthFilter, getGradeFilterState, gradeExcelDateLabel, gradeExcelItemText, gradeColumnLabel, renderGradeGrid, clearGradeDateFilter, exportGradeExcel, importGradeExcel, itemDetailText, setScore, gridKeyNav, populateStudentSelect, buildStudentReportHtml, renderJpegPreview, downloadJpeg, showJpegResult, downloadAllJpeg, escapeHtml };
+
+return { markDirty, markSaved, updateSaveStatus, saveToLocalStorage, loadFromLocalStorage, resetLocalData, uid, toast, showConfirmModal, showInfoModal, showPromptModal, switchTab, exportBackup, importBackup, refreshAll, renderSubjects, addSubject, renderScoreTextChips, addScoreTextOption, updateScoreTextDatalist, renderStudents, addStudent, removeStudent, importStudentsExcel, pad2, fmtDate, ymKey, getMonthWeeks, shiftMonth, ensureDay, migrateDayShape, migrateMonthsShape, renderCalendar, subjectOptionsHtml, renderItemsList, syncItemsFromDOM, addItemRow, removeItemRow, moveItem, openDayModal, closeDayModal, saveDayModal, clearDay, getAllMonthKeys, collectItems, populateMonthFilter, getGradeFilterState, gradeExcelDateLabel, gradeExcelItemText, gradeColumnLabel, renderGradeGrid, clearGradeDateFilter, exportGradeExcel, importGradeExcel, itemDetailText, setScore, gridKeyNav, populateStudentSelect, getJpegFilterState, clearJpegDateFilter, jpegPeriodLabel, jpegPeriodFilenamePart, buildStudentReportHtml, renderJpegPreview, downloadJpeg, showJpegResult, downloadAllJpeg, escapeHtml };
 })();
 </script>
-</div>
-
-
-<script>
-var TOOLBOX_PASSWORD = '814793';
-var TOOLBOX_AUTH_KEY = 'toolboxAuthed';
-
-function showModule(name){
-  document.getElementById('passwordGateRoot').classList.remove('is-active');
-  document.getElementById('moduleSelectRoot').classList.remove('is-active');
-  document.getElementById('modOrderRoot').classList.remove('is-active');
-  document.getElementById('modReviewRoot').classList.remove('is-active');
-  if(name==='gate'){ document.getElementById('passwordGateRoot').classList.add('is-active'); }
-  else if(name==='order'){ document.getElementById('modOrderRoot').classList.add('is-active'); }
-  else if(name==='review'){ document.getElementById('modReviewRoot').classList.add('is-active'); }
-  else{ document.getElementById('moduleSelectRoot').classList.add('is-active'); }
-  window.scrollTo(0,0);
-}
-
-function checkGatePassword(){
-  var input = document.getElementById('gatePasswordInput');
-  var errEl = document.getElementById('gateError');
-  if(input.value === TOOLBOX_PASSWORD){
-    var remember = document.getElementById('gateRemember').checked;
-    if(remember){
-      try{ localStorage.setItem(TOOLBOX_AUTH_KEY, 'yes'); }catch(e){}
-    }
-    errEl.style.display = 'none';
-    input.value = '';
-    showModule('select');
-  } else {
-    errEl.style.display = 'block';
-    input.value = '';
-    input.focus();
-  }
-}
-
-(function(){
-  var authed = false;
-  try{ authed = localStorage.getItem(TOOLBOX_AUTH_KEY) === 'yes'; }catch(e){}
-  if(authed){ showModule('select'); }
-  else{ showModule('gate'); }
-})();
-</script>
-
 
 </body>
 </html>
