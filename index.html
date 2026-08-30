@@ -7,90 +7,113 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
+
 /* ---------- shared shell / reset ---------- */
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
+html{color-scheme:light;}
 body{min-height:100vh;}
 .mod-root{display:none;}
 .mod-root.is-active{display:block;}
 .back-to-menu-btn{
-  display:block; width:100%; text-align:left; background:rgba(255,255,255,.08);
-  color:#fff4d9; border:1px solid rgba(255,244,217,.35); border-radius:10px;
-  padding:8px 12px; font-size:14px; cursor:pointer; margin-bottom:10px;
+  display:inline-block; background:#F6EBE2;
+  color:#3E2A1E; border:none; border-radius:999px; font-weight:700;
+  padding:9px 16px; font-size:13.5px; cursor:pointer; margin-bottom:10px;
   font-family:"Microsoft JhengHei","PingFang TC","微軟正黑體","Noto Sans TC",sans-serif;
 }
-.back-to-menu-btn:hover{background:rgba(255,255,255,.18);}
+.back-to-menu-btn:hover{background:#E9D3C4;}
 
-/* ---------- module select screen ---------- */
+/* ---------- module select screen (焦糖奶茶版) ---------- */
 #moduleSelectRoot{
   min-height:100vh; align-items:center; justify-content:center;
-  background:#FBF6EC; font-family:"Microsoft JhengHei","PingFang TC","微軟正黑體","Noto Sans TC",sans-serif;
+  background:#FBF2EC;
+  font-family:"Microsoft JhengHei","PingFang TC","微軟正黑體","Noto Sans TC",sans-serif;
   padding:32px;
 }
 #moduleSelectRoot.is-active{ display:flex; }
-.module-select-inner{max-width:760px; width:100%; text-align:center;}
-.module-select-inner h1{font-size:28px; color:#4A2F18; margin-bottom:8px;}
-.module-select-inner p.sub{color:#6B6459; font-size:16px; margin-bottom:36px;}
-.module-cards{display:flex; gap:24px; flex-wrap:wrap; justify-content:center;}
-.module-card{
-  flex:1; min-width:260px; max-width:320px; background:#fff; border:2px solid #E4D9BE;
-  border-radius:18px; padding:32px 24px; cursor:pointer; text-align:left;
-  box-shadow:0 2px 10px rgba(43,42,40,.08); transition:transform .1s, box-shadow .1s;
+.module-select-inner{max-width:560px; width:100%; position:relative; z-index:1;}
+.menu-header{display:flex; align-items:center; gap:14px; margin-bottom:28px;}
+.menu-header-text h1{font-size:26px; color:#3E2A1E; margin:0 0 6px; font-weight:900;}
+.menu-header-text p.sub{color:#6B5040; font-size:15px; margin:0; font-weight:600;}
+.mascot-badge{
+  display:flex; flex-direction:column; align-items:center; background:#F1E3DC; border-radius:50%;
+  padding:6px; box-shadow:0 8px 18px rgba(122,82,64,.2); flex-shrink:0;
 }
-.module-card:hover{transform:translateY(-3px); box-shadow:0 8px 24px rgba(43,42,40,.15); border-color:#C79A3C;}
-.module-card .icon{font-size:40px; margin-bottom:14px; display:block;}
-.module-card h2{font-size:21px; color:#4A2F18; margin:0 0 10px;}
-.module-card p{font-size:15px; color:#6B6459; line-height:1.6; margin:0;}
-@media (max-width:680px){
-  .module-cards{flex-direction:column; align-items:stretch;}
-  .module-card{max-width:none;}
+.mascot-badge img{width:52px; height:52px; object-fit:cover; border-radius:50%; display:block;}
+.mascot-badge span{display:none;}
+.module-cards{display:flex; flex-direction:column; gap:18px;}
+.module-card{
+  background:#FFFDFB; border:none; border-radius:36px;
+  padding:26px 26px; cursor:pointer; text-align:left; position:relative;
+  display:flex; align-items:center; gap:20px;
+  box-shadow:0 14px 30px rgba(122,82,64,.16);
+  transition:transform .1s ease;
+}
+.module-card:hover{transform:translateY(-2px);}
+.module-card .icon{
+  width:58px; height:58px; flex-shrink:0; font-size:26px;
+  border-radius:46% 54% 54% 46% / 54% 46% 54% 46%;
+  background:linear-gradient(150deg,#D9A484,#A9633F);
+  display:flex; align-items:center; justify-content:center;
+}
+.module-card .body{flex:1; min-width:0;}
+.module-card h2{font-size:18px; color:#3E2A1E; margin:0 0 5px; font-weight:800;}
+.module-card p{font-size:13.5px; color:#6B5040; line-height:1.55; margin:0; font-weight:600;}
+.module-card .go-btn{
+  flex-shrink:0; background:#A9633F; color:#fff; font-size:14px; font-weight:800;
+  padding:11px 20px; border-radius:999px;
+}
+@media (max-width:600px){
+  .module-card{flex-wrap:wrap;}
+  .module-card .go-btn{width:100%; text-align:center;}
 }
 
-/* ---------- password gate ---------- */
+/* ---------- password gate (焦糖奶茶版) ---------- */
 #passwordGateRoot{
   min-height:100vh; align-items:center; justify-content:center;
-  background:#FBF6EC; font-family:"Microsoft JhengHei","PingFang TC","微軟正黑體","Noto Sans TC",sans-serif;
+  background:#FBF2EC;
+  font-family:"Microsoft JhengHei","PingFang TC","微軟正黑體","Noto Sans TC",sans-serif;
   padding:32px;
 }
 #passwordGateRoot.is-active{ display:flex; }
 .gate-card{
-  max-width:360px; width:100%; background:#fff; border:2px solid #E4D9BE;
-  border-radius:18px; padding:36px 30px; text-align:center;
-  box-shadow:0 4px 18px rgba(43,42,40,.10);
+  max-width:380px; width:100%; background:#FFFDFB; border:none;
+  border-radius:36px; padding:40px 32px; text-align:center;
+  box-shadow:0 14px 30px rgba(122,82,64,.16);
 }
-.gate-card .icon{font-size:40px; margin-bottom:10px; display:block;}
-.gate-card h1{font-size:20px; color:#4A2F18; margin:0 0 6px;}
-.gate-card p.sub{color:#6B6459; font-size:14px; margin:0 0 22px;}
+.gate-card .icon{font-size:44px; margin-bottom:12px; display:block;}
+.gate-card h1{font-size:22px; color:#3E2A1E; margin:0 0 8px; font-weight:900;}
+.gate-card p.sub{color:#6B5040; font-size:15.5px; margin:0 0 24px; font-weight:600;}
 .gate-input{
-  width:100%; font-size:20px; letter-spacing:4px; text-align:center;
-  padding:12px 14px; border-radius:10px; border:2px solid #D8CBAA;
-  margin-bottom:14px; box-sizing:border-box;
+  width:100%; font-size:22px; letter-spacing:4px; text-align:center;
+  padding:14px; border-radius:16px; border:none; background:#F6EBE2; color:#3E2A1E;
+  margin-bottom:16px; box-sizing:border-box;
 }
-.gate-input:focus{outline:none; border-color:#C79A3C;}
-.gate-remember{display:flex; align-items:center; justify-content:center; gap:8px; font-size:13.5px; color:#6B6459; margin-bottom:18px;}
+.gate-input:focus{outline:2.5px solid #A9633F;}
+.gate-remember{display:flex; align-items:center; justify-content:center; gap:8px; font-size:15px; color:#6B5040; font-weight:700; margin-bottom:20px;}
 .gate-btn{
-  width:100%; background:#C79A3C; color:#fff; border:none; border-radius:10px;
-  font-size:16px; font-weight:700; padding:12px; cursor:pointer;
+  width:100%; background:#A9633F; color:#fff; border:none; border-radius:999px;
+  font-size:18px; font-weight:900; padding:15px; cursor:pointer;
 }
-.gate-btn:hover{background:#b8853a;}
-.gate-error{color:#B5352E; font-size:13.5px; margin:12px 0 0; display:none;}
+.gate-btn:hover{background:#8B4F32;}
+.gate-error{color:#B5352E; font-size:14.5px; margin:14px 0 0; display:none; font-weight:700;}
 
-/* ===================== .mod-order (訂餐通知單產生系統) ===================== */
 
+/* ================= mod-order (訂餐通知單產生系統) scoped styles ================= */
   :root {
-    --bg:#ffffe5;
-    --orange-light:#ffffcb;
-    --panel:#fffdf3;
-    --border:#fff4d9;
-    --orange:#e8c34c;
-    --orange-dark:#b8933a;
-    --text:#4a3f22;
-    --muted:#9c8f5e;
+    --bg:#FBF2EC;
+    --orange-light:#F6EBE2;
+    --panel:#FFFDFB;
+    --border:#E9D3C4;
+    --orange:#A9633F;
+    --orange-dark:#8B4F32;
+    --text:#3E2A1E;
+    --muted:#6B5040;
     --green:#5b8f4f;
     --danger:#c0392b;
   }
@@ -98,14 +121,12 @@ body{min-height:100vh;}
   .mod-order {
     margin:0; font-family:"Microsoft JhengHei","PingFang TC","Heiti TC",sans-serif;
     background-color:var(--bg);
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 64 64'%3E%3Cellipse cx='32' cy='40' rx='14' ry='11' fill='%23e8c34c' fill-opacity='0.08'/%3E%3Cellipse cx='16' cy='22' rx='6' ry='8' fill='%23e8c34c' fill-opacity='0.08'/%3E%3Cellipse cx='30' cy='12' rx='6' ry='8' fill='%23e8c34c' fill-opacity='0.08'/%3E%3Cellipse cx='46' cy='16' rx='6' ry='8' fill='%23e8c34c' fill-opacity='0.08'/%3E%3Cellipse cx='54' cy='30' rx='6' ry='8' fill='%23e8c34c' fill-opacity='0.08'/%3E%3C/svg%3E");
-    background-repeat:repeat;
     color:var(--text); font-size:18px; line-height:1.6;
   }
   .mod-order .app { display:flex; min-height:100vh; }
-  .mod-order /* ---------- Sidebar ---------- */
-  .sidebar {
-    width:260px; background:linear-gradient(180deg, #654321, #4a2f18); color:var(--border); padding:28px 16px;
+  /* ---------- Sidebar ---------- */
+  .mod-order .sidebar {
+    width:260px; background:var(--panel); color:var(--text); padding:22px 18px; box-shadow:2px 0 14px rgba(122,82,64,.10);
     flex-shrink:0; display:flex; flex-direction:column; gap:8px;
     position:sticky; top:0; align-self:flex-start; height:100vh; overflow-y:auto;
     scrollbar-width:none; -ms-overflow-style:none;
@@ -113,31 +134,32 @@ body{min-height:100vh;}
   .mod-order .sidebar::-webkit-scrollbar { display:none; width:0; height:0;
   }
   .mod-order .sidebar h1 {
-    font-size:17px; margin:0 0 20px 4px; line-height:1.4; color:var(--border);
+    font-size:18px; margin:0 0 20px 4px; line-height:1.4; color:var(--text); font-weight:900;
     display:flex; align-items:center; gap:6px; white-space:nowrap;
   }
   .mod-order .title-cat-icon {
     width:28px; height:28px; border-radius:50%; object-fit:cover;
-    vertical-align:middle; margin-right:4px; border:2px solid rgba(255,244,217,.4);
+    vertical-align:middle; margin-right:4px; border:2px solid var(--border);
   }
   .mod-order .step-item {
-    display:flex; align-items:center; gap:12px; padding:14px 12px; border-radius:10px;
+    display:flex; align-items:center; gap:12px; padding:13px 16px; border-radius:18px;
     cursor:pointer; transition:background .15s; user-select:none;
+    background:var(--orange-light); color:var(--muted); min-height:54px; font-size:17px; font-weight:800;
   }
-  .mod-order .step-item:hover { background:rgba(255,255,255,.12); }
-  .mod-order .step-item.active { background:rgba(255,255,255,.2); font-weight:bold; }
+  .mod-order .step-item:hover { background:var(--border); }
+  .mod-order .step-item.active { background:var(--orange); color:#fff; font-weight:bold; }
   .mod-order .step-item.disabled { opacity:.5; cursor:not-allowed; }
   .mod-order .step-num {
-    width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.15);
+    width:28px; height:28px; border-radius:50%; background:rgba(122,82,64,.14);
     display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;
-    border:2px solid rgba(255,244,217,.4); color:var(--border);
+    border:none; color:inherit; font-size:14px;
   }
-  .mod-order .step-item.done .step-num { background:var(--green); border-color:var(--green); color:#fff; }
-  .mod-order .step-item.active .step-num { border-color:var(--border); }
+  .mod-order .step-item.done .step-num { background:var(--green); color:#fff; }
+  .mod-order .step-item.active .step-num { background:rgba(255,255,255,.3); color:#fff; }
   .mod-order .step-label { font-size:17px; }
   .mod-order .future-item {
-    margin-top:18px; padding:14px 12px; border:2px dashed rgba(255,244,217,.35);
-    border-radius:10px; color:rgba(255,244,217,.75); font-size:15px; text-align:center;
+    margin-top:18px; padding:14px 12px; border:2px dashed var(--border);
+    border-radius:14px; color:var(--muted); font-size:14px; text-align:center;
   }
   .mod-order .sidebar-cat { margin-top:auto; padding-top:24px; text-align:center; }
   .mod-order .sidebar-cat-photo {
@@ -147,62 +169,67 @@ body{min-height:100vh;}
     mask-image:linear-gradient(to bottom, black 88%, transparent 100%);
     opacity:1;
   }
-  .mod-order /* ---------- Main ---------- */
-  .content { flex:1; padding:36px 48px; max-width:1100px; }
+  /* ---------- Main ---------- */
+  .mod-order .content { flex:1; padding:36px 48px; }
   .mod-order .step { display:none; }
   .mod-order .step.active { display:block; animation:fade .25s ease; }
   @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
   .mod-order .card {
-    background:var(--panel); border:1px solid var(--border); border-radius:14px;
-    padding:32px; margin-bottom:24px; box-shadow:0 2px 10px rgba(180,110,50,.08);
+    background:var(--panel); border:none; border-radius:28px;
+    padding:28px 32px; margin-bottom:24px; box-shadow:0 10px 24px rgba(122,82,64,.14);
   }
-  .mod-order h2 { font-size:26px; margin-top:0; color:var(--orange-dark); }
+  .mod-order h2 { font-size:24px; margin-top:0; color:var(--text); font-weight:800; }
   .mod-order .instruction {
-    background:var(--border); border-left:5px solid var(--orange); padding:16px 20px;
-    border-radius:8px; font-size:19px; margin-bottom:24px;
+    background:var(--orange-light); border-left:none; padding:16px 20px;
+    border-radius:14px; font-size:16px; margin-bottom:24px; color:var(--muted); font-weight:600;
   }
-  .mod-order /* ---------- Drop zone ---------- */
-  .dropzone {
-    border:3px dashed var(--orange); border-radius:16px; padding:60px 20px; text-align:center;
-    background:#fff9f2; cursor:pointer; transition:.15s;
+  /* ---------- Drop zone ---------- */
+  .mod-order .dropzone {
+    border:3px dashed var(--border); border-radius:20px; padding:60px 20px; text-align:center;
+    background:var(--orange-light); cursor:pointer; transition:.15s;
   }
-  .mod-order .dropzone.dragover { background:#fbe2c9; border-color:var(--orange-dark); }
+  .mod-order .dropzone.dragover { background:var(--border); border-color:var(--orange); }
   .mod-order .dropzone .big-icon { font-size:56px; margin-bottom:10px; }
   .mod-order .dropzone p { margin:6px 0; font-size:20px; }
   .mod-order .dropzone .sub { color:var(--muted); font-size:16px; }
   .mod-order input[type=file] { display:none; }
-  .mod-order /* ---------- Buttons ---------- */
-  .btn {
-    display:inline-block; padding:14px 28px; font-size:18px; border-radius:10px; border:none;
-    cursor:pointer; font-weight:bold; transition:.15s; margin-right:10px;
+  /* ---------- Buttons ---------- */
+  .mod-order .btn {
+    display:inline-block; padding:14px 28px; font-size:18px; border-radius:999px; border:none;
+    cursor:pointer; font-weight:800; transition:.15s; margin-right:10px;
   }
   .mod-order .btn-primary { background:var(--orange); color:#fff; }
   .mod-order .btn-primary:hover { background:var(--orange-dark); }
-  .mod-order .btn-secondary { background:#f1e3d3; color:var(--text); }
-  .mod-order .btn-secondary:hover { background:#e6d3ba; }
+  .mod-order .btn-secondary { background:var(--orange-light); color:var(--text); }
+  .mod-order .btn-secondary:hover { background:var(--border); }
   .mod-order .btn-success { background:var(--green); color:#fff; }
   .mod-order .btn-success:hover { background:#456e3b; }
   .mod-order .btn:disabled { opacity:.5; cursor:not-allowed; }
   .mod-order .btn-row { margin-top:28px; }
   .mod-order .icon-btn {
-    width:44px; height:44px; border-radius:8px; border:1px solid var(--border); background:#fff;
+    width:44px; height:44px; border-radius:14px; border:none; background:var(--orange-light);
     cursor:pointer; font-size:18px; flex-shrink:0;
   }
   .mod-order .icon-btn:hover { background:var(--border); }
-  .mod-order /* ---------- Table ---------- */
-  table.data-table { width:100%; border-collapse:collapse; margin-top:14px; font-size:17px; }
+  /* ---------- Table ---------- */
+  .mod-order table.data-table { width:100%; border-collapse:collapse; margin-top:14px; font-size:17px; }
   .mod-order table.data-table th, .mod-order table.data-table td { border:1px solid var(--border); padding:10px 12px; text-align:center; }
   .mod-order table.data-table th { background:var(--border); }
   .mod-order table.data-table input { width:100%; padding:6px; font-size:16px; border:1px solid var(--border); border-radius:6px; text-align:center; }
-  .mod-order /* ---------- Settings grid ---------- */
-  .settings-block {
-    background:#fffdf3; border:1px solid var(--border); border-radius:12px;
+  /* ---------- Settings grid ---------- */
+  .mod-order .settings-block {
+    background:var(--orange-light); border:none; border-radius:18px;
     padding:20px 22px; margin-top:18px;
   }
-  .mod-order .settings-block-title { margin:0 0 12px 0; font-size:18px; color:var(--orange-dark); }
+  .mod-order .settings-block-title { margin:0 0 12px 0; font-size:17px; color:var(--text); font-weight:800; }
   .mod-order .settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:18px 28px; margin-top:10px; }
   .mod-order .field label { display:block; font-size:15px; color:var(--muted); margin-bottom:6px; }
-  .mod-order .field input, .mod-order .field select { width:100%; padding:10px 12px; font-size:17px; border:1px solid var(--border); border-radius:8px; background:#fff; }
+  .mod-order .field input, .mod-order .field select { width:100%; padding:11px 14px; font-size:17px; border:none; border-radius:14px; background:var(--orange-light); color:var(--text); }
+  .mod-order .field select, .mod-order .combo-row select {
+    padding-right:36px; -webkit-appearance:none; appearance:none; cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236B5040'%3E%3Cpath d='M5.5 7.5l4.5 4.5 4.5-4.5' stroke='%236B5040' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 12px center; background-size:16px;
+  }
   .mod-order .field.full { grid-column:1 / -1; }
   .mod-order .combo-row { display:flex; gap:8px; align-items:center; }
   .mod-order .combo-row select { flex:1; }
@@ -210,12 +237,12 @@ body{min-height:100vh;}
     margin-top:8px; padding:10px 14px; background:var(--border); border:1px solid var(--border);
     border-radius:8px; font-size:15px; color:var(--muted); line-height:1.7;
   }
-  .mod-order /* ---------- Status ---------- */
-  .status-ok { color:var(--green); font-weight:bold; }
+  /* ---------- Status ---------- */
+  .mod-order .status-ok { color:var(--green); font-weight:bold; }
   .mod-order .status-error { color:var(--danger); font-weight:bold; }
   .mod-order .file-summary { margin-top:18px; font-size:17px; }
-  .mod-order /* ---------- Step3 layout ---------- */
-  .export-layout { display:flex; gap:28px; align-items:flex-start; }
+  /* ---------- Step3 layout ---------- */
+  .mod-order .export-layout { display:flex; gap:28px; align-items:flex-start; }
   .mod-order .export-list { width:300px; flex-shrink:0; }
   .mod-order .search-box { width:100%; padding:12px 14px; font-size:17px; border:1px solid var(--border); border-radius:10px; margin-bottom:10px; }
   .mod-order .select-actions { margin-bottom:12px; font-size:15px; }
@@ -230,8 +257,8 @@ body{min-height:100vh;}
   .mod-order .selected-count { font-size:15px; color:var(--muted); margin-bottom:10px; }
   .mod-order .preview-area { flex:1; text-align:center; }
   .mod-order .preview-area img { max-width:100%; border:1px solid var(--border); box-shadow:0 2px 8px rgba(0,0,0,.08); }
-  .mod-order /* ---------- Hidden render source ---------- */
-  #renderHost { position:absolute; left:-99999px; top:0; }
+  /* ---------- Hidden render source ---------- */
+  .mod-order #renderHost { position:absolute; left:-99999px; top:0; }
   .mod-order .notice-doc { width:820px; background:#fff; padding:36px 40px; font-family:"Microsoft JhengHei","PingFang TC",sans-serif; color:#111; }
   .mod-order .notice-block { margin-bottom:44px; }
   .mod-order .notice-header { display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:18px; }
@@ -261,144 +288,150 @@ body{min-height:100vh;}
   .mod-order .cal-table .mark-icon { display:block; font-size:12px; color:#2f8f3e; font-weight:bold; line-height:1.3; }
   .mod-order .notice-summary-line { margin-top:14px; font-size:15px; text-align:right; line-height:1.9; }
   .mod-order .notice-summary-line .amt { font-weight:bold; color:#c0392b; font-size:19px; }
-  .mod-order /* ---------- Modal ---------- */
-  .modal-overlay {
+  /* ---------- Modal ---------- */
+  .mod-order .modal-overlay {
     position:fixed; inset:0; background:rgba(58,43,30,.45); display:flex;
     align-items:center; justify-content:center; z-index:999;
   }
   .mod-order .modal-box {
-    background:#fff; border-radius:14px; padding:28px 30px; width:420px; max-width:90vw;
+    background:var(--panel); border-radius:24px; padding:28px 30px; width:420px; max-width:90vw;
     box-shadow:0 8px 30px rgba(0,0,0,.25);
   }
-  .mod-order .modal-box h3 { margin-top:0; color:var(--orange-dark); }
+  .mod-order .modal-box h3 { margin-top:0; color:var(--text); font-weight:800; }
   .mod-order .modal-box .field { margin-bottom:14px; }
   .mod-order .modal-box .btn-row { margin-top:20px; text-align:right; }
 
 
-
-/* ===================== .mod-review (複習進度・成績登記系統) ===================== */
-
+/* ================= mod-review (複習進度・成績登記系統) scoped styles ================= */
   :root {
-    --paper:#ffffe5;
-    --paper-line:#fff4d9;
-    --ink:#4a3f22;
-    --ink-soft:#9c8f5e;
-    --board:#654321;
-    --board-dark:#4A2F18;
-    --board-light:#8B5E3C;
+    --paper:#FBF2EC;
+    --paper-line:#E9D3C4;
+    --ink:#3E2A1E;
+    --ink-soft:#6B5040;
+    --board:#A9633F;
+    --board-dark:#3E2A1E;
+    --board-light:#A9633F;
     --red:#c0392b;
     --red-light:#F4DEDB;
-    --gold:#e8c34c;
-    --gold-dark:#b8933a;
-    --card:#FFFFFF;
-    --shadow: 0 2px 10px rgba(180,110,50,.08);
-    --radius: 14px;
+    --gold:#A9633F;
+    --gold-dark:#8B4F32;
+    --card:#FFFDFB;
+    --fill:#F6EBE2;
+    --shadow: 0 10px 24px rgba(122,82,64,.14);
+    --radius: 28px;
   }
   * {box-sizing:border-box;}
   html, .mod-review {margin:0;padding:0;}
   .mod-review {
     background-color:var(--paper);
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90' viewBox='0 0 64 64'%3E%3Cellipse cx='32' cy='40' rx='14' ry='11' fill='%23e8c34c' fill-opacity='0.08'/%3E%3Cellipse cx='16' cy='22' rx='6' ry='8' fill='%23e8c34c' fill-opacity='0.08'/%3E%3Cellipse cx='30' cy='12' rx='6' ry='8' fill='%23e8c34c' fill-opacity='0.08'/%3E%3Cellipse cx='46' cy='16' rx='6' ry='8' fill='%23e8c34c' fill-opacity='0.08'/%3E%3Cellipse cx='54' cy='30' rx='6' ry='8' fill='%23e8c34c' fill-opacity='0.08'/%3E%3C/svg%3E");
-    background-repeat:repeat;
     color:var(--ink);
     font-family:'Microsoft JhengHei','微軟正黑體','Noto Sans TC',sans-serif;
-    font-size:18px;
+    font-size:19px;
     line-height:1.6;
     min-height:100vh;
   }
   .mod-review h1, .mod-review h2, .mod-review h3 {font-family:'Microsoft JhengHei','微軟正黑體','Noto Sans TC',sans-serif; margin:0 0 .4em 0;}
   .mod-review button {font-family:inherit;}
 
-  .mod-review /* ---------- Unified left sidebar (brand + backup + numbered nav) ---------- */
-  .app-body {display:flex; align-items:flex-start; min-height:100vh;}
+  /* ---------- Unified left sidebar (brand + backup + numbered nav) ---------- */
+  .mod-review .app-body {display:flex; align-items:flex-start; min-height:100vh;}
   .mod-review .sidebar {
-    width:250px; flex-shrink:0;
-    background: linear-gradient(180deg, var(--board) 0%, #2E1B0D 100%);
+    width:270px; flex-shrink:0; box-sizing:border-box;
+    background:var(--card);
     position:sticky; top:0;
     height:100vh;
     overflow-y:auto;
     scrollbar-width:none; -ms-overflow-style:none;
-    padding:22px 16px;
-    display:flex; flex-direction:column; gap:10px;
-    box-shadow:2px 0 10px rgba(0,0,0,.18);
+    padding:22px 18px;
+    display:flex; flex-direction:column; gap:14px;
+    box-shadow:2px 0 14px rgba(122,82,64,.10);
     z-index:40;
   }
-  .mod-review .sidebar::-webkit-scrollbar { display:none; width:0; height:0; }
-  .mod-review .sidebar-brand {display:flex; align-items:center; gap:12px; padding:0 2px 4px;}
+  .mod-review .sidebar::-webkit-scrollbar {display:none; width:0; height:0;}
+  .mod-review .sidebar-brand {display:flex; align-items:center; gap:12px;}
   .mod-review .sidebar-avatar {
-    width:44px; height:44px; border-radius:50%; flex-shrink:0;
-    background:#fff4d9; display:flex; align-items:center; justify-content:center;
-    font-size:22px; box-shadow:0 2px 8px rgba(0,0,0,.25);
+    width:48px; height:48px; border-radius:50%; flex-shrink:0;
+    background:var(--fill); display:flex; align-items:center; justify-content:center;
+    font-size:22px; box-shadow:0 4px 10px rgba(122,82,64,.18);
   }
-  .mod-review .sidebar-title {color:#fff4d9; font-family:'Microsoft JhengHei','微軟正黑體','Noto Sans TC',sans-serif; font-weight:900; font-size:18px; line-height:1.3;}
-  .mod-review .sidebar-sub {color:#D9C2A3; font-size:13px; line-height:1.5; padding:0 2px 6px;}
-  .mod-review .sidebar-backup {display:flex; flex-direction:column; gap:8px; padding:2px;}
+  .mod-review .sidebar-title {color:var(--ink); font-family:'Microsoft JhengHei','微軟正黑體','Noto Sans TC',sans-serif; font-weight:900; font-size:18px; line-height:1.35;}
+  .mod-review .sidebar-sub {color:var(--ink-soft); font-size:13px; line-height:1.5; font-weight:600;}
+  .mod-review .sidebar-backup {display:flex; flex-direction:column; gap:8px;}
   .mod-review .sidebar-backup .btn {width:100%; justify-content:center;}
-  .mod-review .sidebar-backup .status {font-size:13px; color:#E7D9A9; text-align:center;}
-  .mod-review .reset-link {
-    background:none; border:none; color:#C99A80; font-size:12.5px;
-    text-decoration:underline; cursor:pointer; padding:4px; text-align:center;
-    min-height:auto;
-  }
-  .mod-review .reset-link:hover {color:#E7B89A;}
-  .mod-review .sidebar-divider {height:1px; background:rgba(255,255,255,.16); margin:6px 2px 4px;}
+  .mod-review .sidebar-backup .status {font-size:13px; color:var(--ink-soft); text-align:center; font-weight:600; margin:2px 0;}
+  .mod-review .sidebar-divider {height:1px; background:var(--paper-line); margin:4px 0 2px;}
 
+  .mod-review .tab-nav {display:flex; flex-direction:column; gap:8px;}
   .mod-review .tab-btn {
-    border:2px solid transparent;
-    background:transparent;
-    color:#D9C2A3;
-    padding:12px 14px;
-    border-radius:12px;
-    font-size:16.5px; font-weight:700;
+    border:none; width:100%;
+    background:var(--fill);
+    color:var(--ink-soft);
+    padding:13px 16px;
+    border-radius:18px;
+    font-size:17px; font-weight:800;
     cursor:pointer;
-    min-height:52px;
+    min-height:54px;
     text-align:left;
-    width:100%;
     display:flex; align-items:center; gap:12px;
   }
-  .mod-review .tab-btn:hover {background:rgba(255,255,255,0.08);}
-  .mod-review .tab-btn.active {background:var(--board-light); color:#fff4d9; box-shadow:0 2px 8px rgba(0,0,0,.2);}
+  .mod-review .tab-btn:hover {background:var(--paper-line);}
+  .mod-review .tab-btn.active {background:var(--gold); color:#fff;}
   .mod-review .tab-num {
-    width:30px; height:30px; border-radius:50%; flex-shrink:0;
+    width:28px; height:28px; border-radius:50%; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
-    border:2px solid #8A715A; color:#D9C2A3;
-    font-weight:800; font-size:15px;
+    background:rgba(122,82,64,.14); color:inherit;
+    font-weight:800; font-size:14px;
   }
-  .mod-review .tab-btn.active .tab-num {background:#fff4d9; color:var(--board-dark); border-color:#fff4d9;}
+  .mod-review .tab-btn.active .tab-num {background:rgba(255,255,255,.3); color:#fff;}
   .mod-review .tab-label {flex:1;}
   .mod-review .tab-btn:focus-visible, .mod-review button:focus-visible, .mod-review input:focus-visible, .mod-review select:focus-visible {
     outline:3px solid var(--gold); outline-offset:2px;
   }
 
   .mod-review .content-area {flex:1; min-width:0;}
-  .mod-review .tab-panel {display:none; padding:36px 48px 60px;}
+  .mod-review .tab-panel {display:none; padding:32px 40px 60px;}
   .mod-review .tab-panel.active {display:block;}
 
   @media (max-width:820px) {
     .mod-review .app-body {flex-direction:column; min-height:0;}
     .mod-review .sidebar {
-      width:100%; position:static; height:auto; max-height:none;
-      flex-direction:column; overflow-y:visible;
+      width:100%; position:static; height:auto; overflow-y:visible;
     }
+    .mod-review .tab-nav {flex-direction:row; overflow-x:auto; padding-bottom:2px;}
+    .mod-review .tab-nav::-webkit-scrollbar {display:none; height:0;}
+    .mod-review .tab-btn {width:auto; flex-shrink:0; min-height:46px; padding:10px 16px; font-size:15px;}
+    .mod-review .sidebar-backup {flex-direction:row; flex-wrap:wrap;}
+    .mod-review .sidebar-backup .btn {width:auto;}
     .mod-review .content-area {width:100%;}
+    .mod-review .tab-panel {padding:24px 18px 60px;}
+  }
+
+  /* ---------- Step nav (prev/next) ---------- */
+  .mod-review .step-nav {display:flex; gap:14px; margin-top:8px;}
+  .mod-review .step-nav .btn {flex:1; justify-content:center; font-size:18px;}
+  .mod-review .step-nav .btn-nav-next {background:var(--gold); color:#fff;}
+  .mod-review .step-nav .btn-nav-next:hover {background:var(--gold-dark);}
+  .mod-review .step-nav .btn-nav-prev {background:var(--fill); color:var(--ink);}
+  @media (max-width:520px) {
+    .mod-review .step-nav {flex-direction:column;}
   }
 
   .mod-review .card {
     background:var(--card);
     border-radius:var(--radius);
     box-shadow:var(--shadow);
-    padding:32px;
-    margin-bottom:24px;
-    border:1px solid var(--paper-line);
+    padding:26px 28px;
+    margin-bottom:20px;
+    border:none;
   }
-  .mod-review .card h2 {font-size:26px; margin-top:0; color:var(--gold-dark); border:none; display:block; padding-bottom:0;}
-  .mod-review .hint {background:var(--paper-line); border-left:5px solid var(--gold); border-radius:8px; color:var(--ink-soft); font-size:15.5px; padding:12px 16px; margin:8px 0 20px;}
+  .mod-review .card h2 {font-size:24px; margin-top:0; color:var(--ink); border:none; display:block; padding-bottom:0; font-weight:800;}
+  .mod-review .hint {background:var(--fill); border-left:none; border-radius:14px; color:var(--ink-soft); font-size:16px; padding:12px 16px; margin:8px 0 18px; font-weight:600;}
 
-  .mod-review /* ---------- Buttons ---------- */
-  .btn {
+  /* ---------- Buttons ---------- */
+  .mod-review .btn {
     display:inline-flex; align-items:center; gap:8px;
-    border:none; border-radius:10px; cursor:pointer;
-    font-size:17px; font-weight:700; min-height:48px; padding:10px 20px;
+    border:none; border-radius:999px; cursor:pointer;
+    font-size:18px; font-weight:800; min-height:54px; padding:10px 24px;
     transition:transform .05s ease;
   }
   .mod-review .btn:active {transform:scale(0.97);}
@@ -407,24 +440,31 @@ body{min-height:100vh;}
   .mod-review .btn-gold {background:var(--gold); color:#fff;}
   .mod-review .btn-gold:hover {background:var(--gold-dark);}
   .mod-review .btn-red {background:var(--red); color:#fff;}
-  .mod-review .btn-outline {background:#fff; color:var(--board); border:2px solid var(--board);}
-  .mod-review .btn-ghost {background:#F1ECDD; color:var(--ink);}
-  .mod-review .btn-sm {min-height:38px; font-size:14.5px; padding:6px 14px; border-radius:8px;}
+  .mod-review .btn-outline {background:var(--fill); color:var(--ink);}
+  .mod-review .btn-ghost {background:var(--fill); color:var(--ink);}
+  .mod-review .btn-sm {min-height:42px; font-size:15px; padding:8px 16px;}
+  .mod-review .reset-btn {background:transparent; color:var(--gold); border:1.5px solid var(--paper-line); font-weight:700;}
+  .mod-review .reset-btn:hover {background:var(--fill);}
   .mod-review .btn:disabled {opacity:.45; cursor:not-allowed;}
 
   .mod-review input[type=text], .mod-review input[type=number], .mod-review select {
-    font-size:18px; padding:10px 12px; border-radius:8px;
-    border:2px solid #D8CBAA; background:#fff; color:var(--ink);
-    min-height:46px;
+    font-size:19px; padding:11px 14px; border-radius:16px;
+    border:none; background:var(--fill); color:var(--ink);
+    min-height:50px;
+  }
+  .mod-review select {
+    padding-right:38px; -webkit-appearance:none; appearance:none; cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236B5040'%3E%3Cpath d='M5.5 7.5l4.5 4.5 4.5-4.5' stroke='%236B5040' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 12px center; background-size:18px;
   }
   .mod-review input[type=number] {width:90px; text-align:center;}
   .mod-review label {font-weight:700; margin-right:6px;}
 
-  .mod-review /* ---------- Settings tab ---------- */
-  .chip-list {display:flex; flex-wrap:wrap; gap:10px; margin:12px 0;}
+  /* ---------- Settings tab ---------- */
+  .mod-review .chip-list {display:flex; flex-wrap:wrap; gap:10px; margin:12px 0;}
   .mod-review .chip {
-    background:#F1ECDD; border:2px solid var(--gold); border-radius:24px;
-    padding:8px 14px; font-size:16.5px; display:flex; align-items:center; gap:8px;
+    background:var(--fill); border:none; border-radius:999px;
+    padding:9px 16px; font-size:16.5px; font-weight:700; display:flex; align-items:center; gap:8px;
   }
   .mod-review .chip button {background:none;border:none;color:var(--red);font-size:18px;font-weight:900;cursor:pointer;line-height:1;padding:0 2px;}
   .mod-review .inline-form {display:flex; gap:10px; flex-wrap:wrap; align-items:center;}
@@ -433,8 +473,8 @@ body{min-height:100vh;}
   .mod-review table.roster th, .mod-review table.roster td {border:1px solid #E4D9BE; padding:8px 10px; text-align:center; font-size:17px;}
   .mod-review table.roster th {background:#EFE6D2; color:var(--board-dark);}
 
-  .mod-review /* ---------- Calendar ---------- */
-  .cal-controls {display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-bottom:16px;}
+  /* ---------- Calendar ---------- */
+  .mod-review .cal-controls {display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-bottom:16px;}
   .mod-review .cal-controls .arrows {display:flex; gap:6px;}
   .mod-review table.calendar {border-collapse:collapse; width:100%; table-layout:fixed;}
   .mod-review table.calendar th {
@@ -460,37 +500,43 @@ body{min-height:100vh;}
   }
   .mod-review .tooltip-wrap:hover .tooltip-box, .mod-review .tooltip-wrap:focus-within .tooltip-box {display:block;}
 
-  .mod-review /* ---------- Modal ---------- */
-  .modal-overlay {
+  /* ---------- Modal ---------- */
+  .mod-review .modal-overlay {
     display:none; position:fixed; inset:0; background:rgba(20,20,15,.55); z-index:100;
     align-items:center; justify-content:center; padding:16px;
   }
   .mod-review .modal-overlay.active {display:flex;}
   .mod-review .modal {
-    background:var(--paper); border-radius:16px; max-width:640px; width:100%;
-    max-height:88vh; overflow-y:auto; padding:26px; box-shadow:0 12px 40px rgba(0,0,0,.35);
-    border:3px solid var(--board);
+    background:var(--paper); border-radius:28px; max-width:640px; width:100%;
+    max-height:88vh; overflow-y:auto; padding:28px; box-shadow:0 20px 50px rgba(0,0,0,.25);
+    border:none;
   }
-  .mod-review .modal h3 {color:var(--board-dark); font-size:24px;}
-  .mod-review .subject-block {background:#fff; border:2px solid #E4D9BE; border-radius:12px; padding:16px; margin:14px 0;}
-  .mod-review .subject-block h4 {margin:0 0 10px; font-size:19px; color:var(--red);}
-  .mod-review .subject-block.main h4 {color:var(--board-dark);}
-  .mod-review .item-row {display:flex; gap:8px; align-items:center; margin-bottom:8px; background:#fff; border-radius:8px; padding:4px; transition:background .15s;}
+  .mod-review .modal h3 {color:var(--ink); font-size:23px; font-weight:800;}
+  .mod-review .subject-block {background:var(--fill); border:none; border-radius:20px; padding:18px; margin:14px 0;}
+  .mod-review .subject-block h4 {margin:0 0 10px; font-size:17px; color:var(--red); font-weight:800;}
+  .mod-review .subject-block.main h4 {color:var(--ink);}
+  .mod-review .item-row {display:flex; gap:8px; align-items:center; margin-bottom:8px; background:var(--card); border-radius:14px; padding:6px; box-shadow:0 2px 6px rgba(122,82,64,.08); transition:background .15s;}
   .mod-review .item-row .drag-handle {cursor:grab; color:var(--ink-soft); font-size:20px; padding:0 4px; user-select:none; letter-spacing:-2px;}
   .mod-review .item-row.dragging {opacity:.4;}
-  .mod-review .item-row.drag-over {background:#F1ECDD; box-shadow:inset 0 0 0 2px var(--gold);}
+  .mod-review .item-row.drag-over {background:var(--fill); box-shadow:inset 0 0 0 2px var(--gold);}
   .mod-review .item-row .btn-ghost {padding:4px 10px; min-height:34px; font-size:15px;}
-  .mod-review .item-row input[type=text] {flex:1;}
-  .mod-review .item-row select.item-subject-select {flex:0 0 140px; min-height:40px; padding:6px 8px; font-size:15.5px;}
+  .mod-review .item-row input[type=text] {flex:1; background:var(--fill);}
+  .mod-review .item-row select.item-subject-select {
+    flex:0 0 140px; min-height:40px; padding:6px 30px 6px 12px; font-size:15.5px;
+    border-radius:10px; border:none; background:var(--fill); color:var(--ink);
+    -webkit-appearance:none; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%236B5040'%3E%3Cpath d='M5.5 7.5l4.5 4.5 4.5-4.5' stroke='%236B5040' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 8px center; background-size:16px;
+  }
   @media (max-width:520px) {
     .mod-review .item-row {flex-wrap:wrap;}
     .mod-review .item-row select.item-subject-select {flex:1 1 100%; order:1;}
     .mod-review .item-row input[type=text] {flex:1 1 100%; order:2;}
   }
-  .mod-review .modal-actions {display:flex; justify-content:flex-end; gap:10px; margin-top:18px; position:sticky; bottom:-26px; background:var(--paper); padding-top:10px;}
+  .mod-review .modal-actions {display:flex; justify-content:flex-end; gap:10px; margin-top:18px; position:sticky; bottom:-28px; background:var(--paper); padding-top:10px;}
 
-  .mod-review /* ---------- Grade grid ---------- */
-  .grid-wrap {overflow:auto; max-width:100%; border:2px solid var(--board); border-radius:10px;}
+  /* ---------- Grade grid ---------- */
+  .mod-review .grid-wrap {overflow:auto; max-width:100%; border:2px solid var(--board); border-radius:10px;}
   .mod-review table.gradegrid {border-collapse:collapse; font-size:15px; min-width:100%;}
   .mod-review table.gradegrid th, .mod-review table.gradegrid td {border:1px solid #E4D9BE; padding:5px; text-align:center; white-space:nowrap;}
   .mod-review table.gradegrid th {background:#EFE6D2; color:var(--board-dark); position:sticky; top:0; z-index:5;}
@@ -501,13 +547,17 @@ body{min-height:100vh;}
   .mod-review .colhead-type {display:inline-block; font-size:11.5px; font-weight:700; border-radius:6px; padding:1px 6px; margin-bottom:3px;}
   .mod-review .colhead-type.type-main {background:#F1E4D0; color:var(--board-dark);}
   .mod-review .colhead-type.type-sub {background:var(--red-light); color:var(--red);}
-  .mod-review table.gradegrid input.score-input {width:72px; min-height:34px; padding:4px; font-size:15px; text-align:center;}
+  .mod-review table.gradegrid input.score-input {
+    width:72px; min-height:34px; padding:4px; font-size:15px; text-align:center;
+    border-radius:8px; background:#fff; border:1.5px solid var(--paper-line);
+  }
+  .mod-review table.gradegrid input.score-input:focus {outline:2px solid var(--gold); outline-offset:1px;}
 
-  .mod-review /* ---------- JPEG export ----------
-     Fixed "official document" palette, .mod-review independent of the tool's own
+  /* ---------- JPEG export ----------
+     Fixed "official document" palette, independent of the tool's own
      interface color theme (coffee brown) — matches the look of the
      school's other notices (green header bar + logo mark). */
-  .jpeg-render {
+  .mod-review .jpeg-render {
     width:900px; background:#fff; font-family:'Microsoft JhengHei','微軟正黑體','Noto Sans TC',sans-serif;
     color:#222; overflow:hidden; box-shadow:0 2px 14px rgba(0,0,0,.12);
   }
@@ -548,11 +598,9 @@ body{min-height:100vh;}
     .mod-review table.calendar td {height:80px;}
   }
 
-
 </style>
 </head>
 <body>
-
 <div id="passwordGateRoot" class="mod-root">
   <div class="gate-card">
     <span class="icon">🔒</span>
@@ -567,18 +615,32 @@ body{min-height:100vh;}
 
 <div id="moduleSelectRoot" class="mod-root">
   <div class="module-select-inner">
-    <h1>🎓 大昇文理補習班 工具箱</h1>
-    <p class="sub">請選擇要使用的功能</p>
+    <div class="menu-header">
+      <div class="menu-header-text">
+        <h1>大昇文理補習班 工具箱</h1>
+        <p class="sub">請選擇要使用的功能</p>
+      </div>
+      <div class="mascot-badge">
+        <img src="data:image/jpeg;base64,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" alt="亞米">
+        <span>亞米</span>
+      </div>
+    </div>
     <div class="module-cards">
       <div class="module-card" onclick="showModule('order')">
         <span class="icon">🍱</span>
-        <h2>訂餐通知單產生系統</h2>
-        <p>匯入月訂餐表 Excel，自動產生每位學生的學費／餐費繳交通知單 JPEG。</p>
+        <div class="body">
+          <h2>訂餐通知單產生系統</h2>
+          <p>匯入月訂餐表 Excel，自動產生每位學生的學費／餐費繳交通知單 JPEG。</p>
+        </div>
+        <span class="go-btn">開啟</span>
       </div>
       <div class="module-card" onclick="showModule('review')">
         <span class="icon">📘</span>
-        <h2>複習進度・成績登記系統</h2>
-        <p>登打每月複習進度與成績，產生 A4 列印表與個人成績通知單 JPEG。</p>
+        <div class="body">
+          <h2>複習進度・成績登記系統</h2>
+          <p>登打每月複習進度與成績，產生 A4 列印表與個人成績通知單 JPEG。</p>
+        </div>
+        <span class="go-btn">開啟</span>
       </div>
     </div>
   </div>
@@ -586,10 +648,9 @@ body{min-height:100vh;}
 
 <div id="modOrderRoot" class="mod-root mod-order">
 
-
 <div class="app">
   <nav class="sidebar">
-  <button class="back-to-menu-btn" onclick="showModule('select')">← 返回主選單</button>
+    <button class="back-to-menu-btn" onclick="showModule('select')">← 返回主選單</button>
     <h1><img src="data:image/jpeg;base64,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" alt="亞米" class="title-cat-icon"> 訂餐通知單產生系統</h1>
     <div class="step-item active" id="navStep1" onclick="OrderApp.goStep(1)">
       <div class="step-num">1</div>
@@ -620,12 +681,12 @@ body{min-height:100vh;}
           點選下方框框選擇檔案，或直接把檔案拖曳進來即可。
         </div>
 
-        <div class="dropzone" id="dropzone" onclick="$('fileInput').click()">
+        <div class="dropzone" id="dropzone" onclick="OrderApp.$('fileInput').click()">
           <div class="big-icon">📂</div>
           <p><b>把 Excel 檔案拖曳到這裡</b></p>
           <p class="sub">或點一下這裡選擇檔案</p>
           <div class="btn-row" onclick="event.stopPropagation()">
-            <button class="btn btn-primary" type="button" onclick="$('fileInput').click()">瀏覽並選擇檔案</button>
+            <button class="btn btn-primary" type="button" onclick="OrderApp.$('fileInput').click()">瀏覽並選擇檔案</button>
           </div>
           <p class="sub" style="margin-top:14px;">目前支援 Excel 檔（.xlsx）；Word 檔（.docx）匯入功能開發中<br>手機（iPhone / iPad）也可以使用，按「瀏覽並選擇檔案」後選擇「檔案」App，即可從 iCloud 雲碟或已連結的雲端硬碟中選取</p>
           <input type="file" id="fileInput" accept=".xlsx,.xls,.docx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
@@ -776,11 +837,9 @@ body{min-height:100vh;}
 </div>
 
 
-
 </div>
 
 <div id="modReviewRoot" class="mod-root mod-review">
-
 
 <div class="app-body">
 <nav class="sidebar" id="sidebar">
@@ -798,15 +857,15 @@ body{min-height:100vh;}
       <input type="file" accept="application/json" style="display:none" onchange="ReviewApp.importBackup(event)">
     </label>
     <span class="status" id="saveStatus">尚未開始輸入資料</span>
-    <button class="reset-link" onclick="ReviewApp.resetLocalData()">🗑️ 清除本機資料，重新開始</button>
+    <button class="btn reset-btn btn-sm" onclick="ReviewApp.resetLocalData()">🗑️ 清除本機資料，重新開始</button>
   </div>
 
-  <div class="sidebar-divider"></div>
-
-  <button class="tab-btn active" data-tab="settings" onclick="ReviewApp.switchTab('settings')"><span class="tab-num">1</span><span class="tab-label">科目與學生</span></button>
-  <button class="tab-btn" data-tab="calendar" onclick="ReviewApp.switchTab('calendar')"><span class="tab-num">2</span><span class="tab-label">複習進度月曆</span></button>
-  <button class="tab-btn" data-tab="grades" onclick="ReviewApp.switchTab('grades')"><span class="tab-num">3</span><span class="tab-label">成績登打</span></button>
-  <button class="tab-btn" data-tab="jpeg" onclick="ReviewApp.switchTab('jpeg')"><span class="tab-num">4</span><span class="tab-label">個人成績 JPEG</span></button>
+  <div class="tab-nav">
+    <button class="tab-btn active" data-tab="settings" onclick="ReviewApp.switchTab('settings')"><span class="tab-num">1</span><span class="tab-label">科目與學生</span></button>
+    <button class="tab-btn" data-tab="calendar" onclick="ReviewApp.switchTab('calendar')"><span class="tab-num">2</span><span class="tab-label">複習進度月曆</span></button>
+    <button class="tab-btn" data-tab="grades" onclick="ReviewApp.switchTab('grades')"><span class="tab-num">3</span><span class="tab-label">成績登打</span></button>
+    <button class="tab-btn" data-tab="jpeg" onclick="ReviewApp.switchTab('jpeg')"><span class="tab-num">4</span><span class="tab-label">個人成績 JPEG</span></button>
+  </div>
 </nav>
 
 <main class="content-area">
@@ -846,6 +905,9 @@ body{min-height:100vh;}
     </div>
     <table class="roster" id="reviewStudentTable"></table>
   </div>
+  <div class="step-nav">
+    <button class="btn btn-nav-next" onclick="ReviewApp.switchTab('calendar')">下一步：複習進度月曆 ▶</button>
+  </div>
 </div>
 
 <!-- TAB 2: CALENDAR -->
@@ -863,6 +925,10 @@ body{min-height:100vh;}
       <button class="btn btn-primary" onclick="ReviewApp.renderCalendar()">產生月曆</button>
     </div>
     <table class="calendar" id="calendarTable"></table>
+  </div>
+  <div class="step-nav">
+    <button class="btn btn-nav-prev" onclick="ReviewApp.switchTab('settings')">◀ 上一步</button>
+    <button class="btn btn-nav-next" onclick="ReviewApp.switchTab('grades')">下一步：成績登打 ▶</button>
   </div>
 </div>
 
@@ -895,6 +961,10 @@ body{min-height:100vh;}
     <div class="grid-wrap"><table class="gradegrid" id="gradeGrid"></table></div>
     <datalist id="scoreTextOptionsList"></datalist>
   </div>
+  <div class="step-nav">
+    <button class="btn btn-nav-prev" onclick="ReviewApp.switchTab('calendar')">◀ 上一步</button>
+    <button class="btn btn-nav-next" onclick="ReviewApp.switchTab('jpeg')">下一步：個人成績 JPEG ▶</button>
+  </div>
 </div>
 
 <!-- TAB 4: JPEG -->
@@ -903,7 +973,9 @@ body{min-height:100vh;}
     <h2>個人成績 JPEG 匯出</h2>
     <p class="hint">選擇一位學生與月份（或日期區間），會依「科目」分開列出各章節進度、成績與複習日期，可直接下載成一張圖片。</p>
     <div class="inline-form" style="margin-bottom:10px;">
-      <label>選擇學生：</label>
+      <label>搜尋學生：</label>
+      <input type="text" id="jpegStudentSearch" placeholder="輸入姓名關鍵字…" oninput="ReviewApp.filterJpegStudentSelect()" style="max-width:180px;">
+      <label style="margin-left:10px;">選擇學生：</label>
       <select id="jpegStudentSelect" onchange="ReviewApp.renderJpegPreview()"></select>
     </div>
     <div class="inline-form" style="margin-bottom:10px;">
@@ -926,6 +998,9 @@ body{min-height:100vh;}
       <p class="hint" style="color:var(--board-dark); font-weight:700;">✅ 圖片已產生。如果沒有自動開始下載，請直接在下面的圖片上「長按」（手機）或按滑鼠右鍵（電腦）選擇「另存圖片」／「儲存圖片」：</p>
       <img id="jpegResultImg" style="max-width:100%; border:1px solid #ccc; border-radius:8px; box-shadow:0 2px 10px rgba(0,0,0,.12);">
     </div>
+  </div>
+  <div class="step-nav">
+    <button class="btn btn-nav-prev" onclick="ReviewApp.switchTab('grades')">◀ 上一步</button>
   </div>
 </div>
 
@@ -967,10 +1042,9 @@ body{min-height:100vh;}
 </div>
 
 
-
 </div>
-
 <script>
+
 var TOOLBOX_PASSWORD = '814793';
 var TOOLBOX_AUTH_KEY = 'toolboxAuthed';
 
@@ -1010,11 +1084,10 @@ function checkGatePassword(){
   if(authed){ showModule('select'); }
   else{ showModule('gate'); }
 })();
-</script>
 
+</script>
 <script>
 const OrderApp = (function(){
-
 /* ===================== 全域狀態 ===================== */
 const state = {
   month: '',
@@ -1826,14 +1899,12 @@ function buildCalendarWeeks(year, month, orderedDates){
   return weeks;
 }
 
-
-return { storageGetJSON, storageSetJSON, refreshSharedData, saveCourseOptionsShared, saveBankPresetsShared, getCourseOptions, getBankPresets, loadJSON, saveJSON, goStep, handleFile, loadSampleData, parseWorkbook, applyDefaultSettings, rebuildCourseSelect, rebuildBankSelect, updateBankDetail, getSettings, toMinguoDisplay, onSettingsChange, renderStudentTable, updateGrade, updateSkipTuition, escapeHtml, showModal, closeModal, showInfoModal, showConfirmModal, runPendingConfirm, openCourseModal, saveNewCourse, deleteCurrentCourse, openBankModal, saveNewBank, deleteCurrentBank, renderExportList, filterStudentList, toggleAllChecks, updateSelectedCount, previewStudent, downloadCurrentSingle, triggerDownload, downloadAllZip, renderStudentToJPEG, computeMealFinance, buildNoticeHTML, buildCalendarWeeks };
+  return { $, applyDefaultSettings, buildCalendarWeeks, buildNoticeHTML, closeModal, computeMealFinance, deleteCurrentBank, deleteCurrentCourse, downloadAllZip, downloadCurrentSingle, escapeHtml, filterStudentList, getBankPresets, getCourseOptions, getSettings, goStep, handleFile, loadJSON, loadSampleData, onSettingsChange, openBankModal, openCourseModal, parseWorkbook, previewStudent, rebuildBankSelect, rebuildCourseSelect, refreshSharedData, renderExportList, renderStudentTable, renderStudentToJPEG, runPendingConfirm, saveBankPresetsShared, saveCourseOptionsShared, saveJSON, saveNewBank, saveNewCourse, showConfirmModal, showInfoModal, showModal, storageGetJSON, storageSetJSON, toMinguoDisplay, toggleAllChecks, triggerDownload, updateBankDetail, updateGrade, updateSelectedCount, updateSkipTuition };
 })();
-</script>
 
+</script>
 <script>
 const ReviewApp = (function(){
-
 /* =========================================================
    STATE
    ========================================================= */
@@ -2676,21 +2747,47 @@ function importGradeExcel(evt){
       const sheet = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(sheet, {header:1, blankrows:false, defval:''});
       if(rows.length < 3){
-        showInfoModal('這個檔案裡沒有讀到足夠的資料，請確認上傳的是「匯出登打用 Excel」產生、且包含兩列標題與學生資料的完整檔案。');
+        showInfoModal('這個檔案裡沒有讀到足夠的資料，請確認上傳的是「匯出登打用 Excel」或補習班公版成績登記表，且包含標題列與學生資料的完整檔案。');
         return;
       }
 
-      // 標題有兩列：第一列是日期（同一天的欄位會合併，讀進來時只有該天第一欄有值，
-      // 其餘欄位是空的，所以要把日期往右「補滿」）；第二列是每個項目的進度內容。
-      const dateRow = rows[0] || [];
-      const itemRow = rows[1] || [];
+      // 找出「姓名」欄位標題所在的那一列，以此對齊：
+      // 該列的上一列＝日期列，該列本身＝科目／項目列，該列下一列開始才是學生資料。
+      // 這樣即使檔案最上面多了一列大標題（例如補習班公版成績登記表最上面會有一列
+      // 「○○補習班 ○○班 ○月成績登記表」），也能正確對齊，不會誤把標題列或
+      // 「姓名」欄位標題那一列本身當成一筆學生資料去比對分數。
+      const normalizeHeaderCell = s => String(s==null?'':s).replace(/\s+/g,'');
+      let nameHeaderRowIdx = rows.findIndex(row=> row && normalizeHeaderCell(row[1])==='姓名');
+      if(nameHeaderRowIdx < 1){
+        // 找不到「姓名」欄位標題列，退回舊版假設：第一列日期、第二列項目、第三列起資料
+        nameHeaderRowIdx = 1;
+      }
+      const dataStartRow = nameHeaderRowIdx + 1;
+      if(dataStartRow >= rows.length){
+        showInfoModal('找到了「姓名」欄位標題列，但下面沒有學生資料，請確認檔案內容是否完整。');
+        return;
+      }
+
+      // 標題有兩列：姓名列的上一列是日期（同一天的欄位會合併，讀進來時只有該天第一欄有值，
+      // 其餘欄位是空的，所以要把日期往右「補滿」）；姓名列本身是每個項目的進度內容。
+      const dateRow = rows[nameHeaderRowIdx-1] || [];
+      const itemRow = rows[nameHeaderRowIdx] || [];
       const colCount = Math.max(dateRow.length, itemRow.length);
+      // 公版成績登記表的日期欄常寫成「8/4(二)」（月／日不補零、後面還帶星期文字），
+      // 系統自己匯出的格式則是「08/04」（補零、不含星期文字）。這裡統一轉成補零的
+      // 「MM/DD」格式，兩種來源的檔案才能對上同一把比對用的日期字串。
+      const normalizeImportDate = raw=>{
+        const s = String(raw==null?'':raw).trim();
+        const m = s.match(/(\d{1,2})\s*\/\s*(\d{1,2})/);
+        if(!m) return s;
+        return `${m[1].padStart(2,'0')}/${m[2].padStart(2,'0')}`;
+      };
       let lastDate = '';
       const colDates = [];
       for(let c=0; c<colCount; c++){
         if(c<2){ colDates.push(null); continue; }
         const v = dateRow[c];
-        if(v!==undefined && v!==null && String(v).trim()!==''){ lastDate = String(v).trim(); }
+        if(v!==undefined && v!==null && String(v).trim()!==''){ lastDate = normalizeImportDate(v); }
         colDates.push(lastDate);
       }
 
@@ -2702,20 +2799,48 @@ function importGradeExcel(evt){
       const labelToItemId = {};
       allItems.forEach(it=>{ labelToItemId[gradeColumnLabel(it)] = it.id; });
 
+      // 備援比對用：把同一天的項目依「內容」分組，內容比對時把所有空白（含全形空白）
+      // 都拿掉再比。公版表格的欄位標題第一行常是科目名稱（例如「地理第五回」），第二行
+      // 才是進度內容；但系統裡登記的項目文字，有時候科目字樣有包含在內、有時候沒有
+      // （取決於當初登記時打字的方式），沒辦法保證兩邊格式一致。所以先嘗試「日期＋內容」
+      // 完全比對，比對不到的欄位再退一步，改成「同一天內，看看誰的內容文字是欄位標題
+      // 整格內容的子字串（或反過來）」，只有唯一命中時才採用，避免誤配。
+      const stripAllSpace = s => String(s==null?'':s).replace(/\s+/g,'');
+      const itemsByDate = {};
+      allItems.forEach(it=>{
+        const d = gradeExcelDateLabel(it);
+        (itemsByDate[d] = itemsByDate[d] || []).push({id:it.id, norm: stripAllSpace(it.text)});
+      });
+
       const colItemIds = [];
+      const unmatchedColLabels = [];
       for(let c=0; c<colCount; c++){
         if(c<2){ colItemIds.push(null); continue; }
-        const text = itemRow[c]==null ? '' : String(itemRow[c]).trim();
-        if(!text || !colDates[c]){ colItemIds.push(null); continue; }
-        const label = `${colDates[c]} ${text}`;
-        colItemIds.push(labelToItemId[label] || null);
+        const rawCell = itemRow[c]==null ? '' : String(itemRow[c]);
+        const cellLines = rawCell.split(/\r\n|\r|\n/).map(s=>s.trim()).filter(Boolean);
+        const lastLineText = cellLines.length ? cellLines[cellLines.length-1] : '';
+        const combinedText = cellLines.join(' ');
+        if(!lastLineText || !colDates[c]){ colItemIds.push(null); continue; }
+
+        let matchedId = labelToItemId[`${colDates[c]} ${lastLineText}`] || null;
+        if(!matchedId && combinedText !== lastLineText){
+          matchedId = labelToItemId[`${colDates[c]} ${combinedText}`] || null;
+        }
+        if(!matchedId){
+          const candidates = itemsByDate[colDates[c]] || [];
+          const combinedNorm = stripAllSpace(combinedText);
+          const hits = candidates.filter(cand=> cand.norm && (combinedNorm.includes(cand.norm) || cand.norm.includes(combinedNorm)));
+          if(hits.length === 1) matchedId = hits[0].id;
+        }
+        colItemIds.push(matchedId);
+        if(!matchedId) unmatchedColLabels.push(`${colDates[c]} ${combinedText}`);
       }
       const matchedCols = colItemIds.filter(Boolean).length;
       const unmatchedCols = colCount - 2 - matchedCols;
 
       let updated = 0, skippedValue = 0;
       const unmatchedNames = new Set();
-      for(let r=2; r<rows.length; r++){
+      for(let r=dataStartRow; r<rows.length; r++){
         const row = rows[r];
         if(!row) continue;
         const name = row[1]==null ? '' : String(row[1]).trim();
@@ -2743,7 +2868,16 @@ function importGradeExcel(evt){
       if(updated>0){ markDirty(); renderGradeGrid(); }
 
       const msgParts = [`已更新 ${updated} 筆分數／狀態`];
-      if(unmatchedCols>0) msgParts.push(`${unmatchedCols} 個欄位標題對不到複習項目（可能是欄位標題被改過，或項目已被刪除）`);
+      if(unmatchedCols>0){
+        msgParts.push(`${unmatchedCols} 個欄位標題對不到複習項目（可能是欄位標題被改過，或項目已被刪除）`);
+        if(unmatchedColLabels.length){
+          msgParts.push(`檔案裡讀到但對不到的欄位標題（前3個）：${unmatchedColLabels.slice(0,3).join('｜')}`);
+        }
+        const knownLabels = allItems.slice(0,3).map(it=>gradeColumnLabel(it));
+        if(knownLabels.length){
+          msgParts.push(`系統目前登記的複習項目標籤（前3個，供比對）：${knownLabels.join('｜')}`);
+        }
+      }
       if(unmatchedNames.size>0) msgParts.push(`${unmatchedNames.size} 個姓名對不到目前的學生名單（${Array.from(unmatchedNames).slice(0,5).join('、')}${unmatchedNames.size>5?'…':''}）`);
       if(skippedValue>0) msgParts.push(`${skippedValue} 個分數格式看不懂已略過`);
       showInfoModal(msgParts.join('\n'));
@@ -2798,9 +2932,16 @@ function gridKeyNav(evt, inp){
    ========================================================= */
 function populateStudentSelect(){
   const sel = document.getElementById('jpegStudentSelect');
+  const searchEl = document.getElementById('jpegStudentSearch');
+  const kw = searchEl ? searchEl.value.trim() : '';
   const cur = sel.value;
-  sel.innerHTML = state.students.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
-  if(state.students.some(s=>s.id===cur)) sel.value = cur;
+  const list = kw ? state.students.filter(s=>s.name.includes(kw)) : state.students;
+  sel.innerHTML = list.map(s=>`<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+  if(list.some(s=>s.id===cur)) sel.value = cur;
+}
+function filterJpegStudentSelect(){
+  populateStudentSelect();
+  renderJpegPreview();
 }
 function getJpegFilterState(){
   const ym = document.getElementById('jpegMonthFilter').value || 'all';
@@ -2987,10 +3128,9 @@ updateSaveStatus();
 if(restored){ toast('已自動載入上次在此瀏覽器儲存的資料'); }
 
 
-
-return { markDirty, markSaved, updateSaveStatus, saveToLocalStorage, loadFromLocalStorage, resetLocalData, uid, toast, showConfirmModal, showInfoModal, showPromptModal, switchTab, exportBackup, importBackup, refreshAll, renderSubjects, addSubject, renderScoreTextChips, addScoreTextOption, updateScoreTextDatalist, renderStudents, addStudent, removeStudent, importStudentsExcel, pad2, fmtDate, ymKey, getMonthWeeks, shiftMonth, ensureDay, migrateDayShape, migrateMonthsShape, renderCalendar, subjectOptionsHtml, renderItemsList, syncItemsFromDOM, addItemRow, removeItemRow, moveItem, openDayModal, closeDayModal, saveDayModal, clearDay, getAllMonthKeys, collectItems, populateMonthFilter, getGradeFilterState, gradeExcelDateLabel, gradeExcelItemText, gradeColumnLabel, renderGradeGrid, clearGradeDateFilter, exportGradeExcel, importGradeExcel, itemDetailText, setScore, gridKeyNav, populateStudentSelect, getJpegFilterState, clearJpegDateFilter, jpegPeriodLabel, jpegPeriodFilenamePart, buildStudentReportHtml, renderJpegPreview, downloadJpeg, showJpegResult, downloadAllJpeg, escapeHtml };
+  return { addItemRow, addScoreTextOption, addStudent, addSubject, buildStudentReportHtml, clearDay, clearGradeDateFilter, clearJpegDateFilter, closeDayModal, collectItems, downloadAllJpeg, downloadJpeg, ensureDay, escapeHtml, exportBackup, exportGradeExcel, filterJpegStudentSelect, fmtDate, getAllMonthKeys, getGradeFilterState, getJpegFilterState, getMonthWeeks, gradeColumnLabel, gradeExcelDateLabel, gradeExcelItemText, gridKeyNav, importBackup, importGradeExcel, importStudentsExcel, itemDetailText, jpegPeriodFilenamePart, jpegPeriodLabel, loadFromLocalStorage, markDirty, markSaved, migrateDayShape, migrateMonthsShape, moveItem, openDayModal, pad2, populateMonthFilter, populateStudentSelect, refreshAll, removeItemRow, removeStudent, renderCalendar, renderGradeGrid, renderItemsList, renderJpegPreview, renderScoreTextChips, renderStudents, renderSubjects, resetLocalData, saveDayModal, saveToLocalStorage, setScore, shiftMonth, showConfirmModal, showInfoModal, showJpegResult, showPromptModal, subjectOptionsHtml, switchTab, syncItemsFromDOM, toast, uid, updateSaveStatus, updateScoreTextDatalist, ymKey };
 })();
-</script>
 
+</script>
 </body>
 </html>
