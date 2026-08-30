@@ -3070,6 +3070,11 @@ function jpegPeriodFilenamePart(ym, dateFrom, dateTo){
   if(ym && ym!=='all') return ym;
   return '全部期間';
 }
+// 這些「科目 + 進度內容」的組合，依需求不顯示在成績通知單（JPEG 匯出）裡，
+// 但資料本身仍會保留在系統中（日曆、成績登打表格都不受影響，只有這張通知單會過濾掉）。
+const JPEG_EXCLUDED_ITEMS = [
+  { subject: '讀書', text: '問問題' }
+];
 function buildStudentReportHtml(studentId, filter){
   const st = state.students.find(s=>s.id===studentId);
   if(!st) return '<div class="empty-state">請先新增學生</div>';
@@ -3077,6 +3082,7 @@ function buildStudentReportHtml(studentId, filter){
   let items = collectItems(ym);
   if(dateFrom) items = items.filter(it=> it.date >= dateFrom);
   if(dateTo) items = items.filter(it=> it.date <= dateTo);
+  items = items.filter(it=> !JPEG_EXCLUDED_ITEMS.some(ex=> ex.subject===it.subject && ex.text===it.text));
   const bySubject = {};
   items.forEach(it=>{
     if(!bySubject[it.subject]) bySubject[it.subject] = [];
