@@ -11,6 +11,28 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script>
+/* Firebase 雲端同步設定：讓「複習進度成績登記系統」的資料在所有協作者之間即時同步。
+   apiKey 等屬於公開的用戶端設定值，真正的存取權限是由 Firestore 安全性規則把關，不是靠隱藏這組設定。 */
+const firebaseConfig = {
+  apiKey: "AIzaSyDLx281v3SOgChhTFo4cms__rSa_V_YqE8",
+  authDomain: "cramschool-toolbox.firebaseapp.com",
+  projectId: "cramschool-toolbox",
+  storageBucket: "cramschool-toolbox.firebasestorage.app",
+  messagingSenderId: "89546223638",
+  appId: "1:89546223638:web:bda84c6f5045c5512d0537",
+  measurementId: "G-QS81SBDM02"
+};
+let cloudDb = null;
+try{
+  firebase.initializeApp(firebaseConfig);
+  cloudDb = firebase.firestore();
+}catch(err){
+  console.error('Firebase 初始化失敗，將僅使用本機儲存', err);
+}
+</script>
 <style>
 
 /* ---------- shared shell / reset ---------- */
@@ -1924,22 +1946,96 @@ let editingDate = null;
 let dragState = {id:null};
 let calState = { year: new Date().getFullYear(), month: new Date().getMonth()+1 };
 
+/* =========================================================
+   CLOUD SYNC (Firestore) — 讓所有協作者看到同一份即時資料
+   ========================================================= */
+const cloudDocRef = (typeof cloudDb !== 'undefined' && cloudDb)
+  ? cloudDb.collection('cramschoolToolbox').doc('reviewGradeTracker')
+  : null;
+let cloudStatus = cloudDocRef ? 'connecting' : 'unavailable'; // connecting | synced | error | unavailable
+let applyingRemoteUpdate = false;   // true while we're writing a snapshot we received FROM the cloud, to avoid re-pushing it
+let cloudSaveTimer = null;
+let lastPushedJson = null;          // 記錄「上一次是我們自己寫進雲端的內容」，用來分辨伺服器確認回聲 vs 真的是別人的更新
+function pushToCloud(){
+  if(!cloudDocRef || applyingRemoteUpdate) return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer = setTimeout(function(){
+    const payload = JSON.parse(JSON.stringify(state));
+    lastPushedJson = JSON.stringify(payload);
+    cloudDocRef.set(payload).then(function(){
+      cloudStatus = 'synced';
+      updateSaveStatus();
+    }).catch(function(err){
+      console.error('雲端同步失敗', err);
+      cloudStatus = 'error';
+      updateSaveStatus();
+    });
+  }, 500);
+}
+function subscribeCloud(){
+  if(!cloudDocRef) return;
+  cloudDocRef.onSnapshot(function(docSnap){
+    if(docSnap.metadata.hasPendingWrites){
+      // 這是我們剛剛自己寫入、還在等伺服器確認，不需要重新套用一次
+      cloudStatus = 'synced';
+      updateSaveStatus();
+      return;
+    }
+    const data = docSnap.data();
+    if(!data){
+      // 雲端還沒有共用資料 -> 用目前(本機)的資料當作初始值寫上去
+      cloudDocRef.set(state).catch(function(err){ console.error('初始化雲端資料失敗', err); });
+      cloudStatus = 'synced';
+      updateSaveStatus();
+      return;
+    }
+    const incomingJson = JSON.stringify(data);
+    if(incomingJson === lastPushedJson){
+      // 這是我們自己剛剛寫入、伺服器確認回來的版本（不是別人改的），不需要重新渲染畫面
+      cloudStatus = 'synced';
+      updateSaveStatus();
+      return;
+    }
+    applyingRemoteUpdate = true;
+    state = Object.assign({orgName:'大昇文理補習班',subjects:[],students:[],months:{},scores:{},scoreTextOptions:['請假','補課']}, data);
+    migrateMonthsShape(state.months);
+    hasAnyData = true;
+    saveToLocalStorage();
+    refreshAll();
+    cloudStatus = 'synced';
+    updateSaveStatus();
+    applyingRemoteUpdate = false;
+  }, function(err){
+    console.error('雲端同步監聽失敗', err);
+    cloudStatus = 'error';
+    updateSaveStatus();
+  });
+}
+
 function markDirty(){
   dirty = true;
   saveToLocalStorage();
+  pushToCloud();
   updateSaveStatus();
 }
 function markSaved(){
   dirty = false;
   saveToLocalStorage();
+  pushToCloud();
   updateSaveStatus();
 }
 function updateSaveStatus(){
   const el = document.getElementById('saveStatus');
   if(!hasAnyData){ el.textContent = '尚未開始輸入資料'; return; }
-  el.textContent = dirty
+  const localText = dirty
     ? '✅ 已自動存於此瀏覽器（建議定期下載備份檔）'
     : '✅ 已自動存於此瀏覽器（已下載備份檔）';
+  let cloudText;
+  if(cloudStatus === 'synced') cloudText = '　☁️ 已與所有協作者即時同步';
+  else if(cloudStatus === 'connecting') cloudText = '　☁️ 連線雲端中…';
+  else if(cloudStatus === 'error') cloudText = '　⚠️ 雲端同步失敗，將自動重試（此裝置資料仍安全）';
+  else cloudText = '　（雲端同步未啟用，僅存在此瀏覽器）';
+  el.textContent = localText + cloudText;
 }
 function saveToLocalStorage(){
   try{
@@ -1965,7 +2061,10 @@ function loadFromLocalStorage(){
   }
 }
 async function resetLocalData(){
-  const ok = await showConfirmModal('這會清除目前存在此瀏覽器裡的所有資料（科目、學生、複習進度、成績），且無法復原。\n如果還沒下載備份檔，建議先按「📥 下載備份檔」保存。\n\n確定要清除，重新開始嗎？');
+  const warnText = cloudDocRef
+    ? '⚠️ 這會清除「所有協作者」目前看到的共用資料（科目、學生、複習進度、成績），且無法復原！\n如果還沒下載備份檔，建議先按「📥 下載備份檔」保存。\n\n確定要清除，重新開始嗎？'
+    : '這會清除目前存在此瀏覽器裡的所有資料（科目、學生、複習進度、成績），且無法復原。\n如果還沒下載備份檔，建議先按「📥 下載備份檔」保存。\n\n確定要清除，重新開始嗎？';
+  const ok = await showConfirmModal(warnText);
   if(!ok) return;
   try{ localStorage.removeItem(STORAGE_KEY); }catch(err){ console.error(err); }
   state = { orgName: '大昇文理補習班', subjects: ['國文','英文','數學','自然','社會'], students: [], months: {}, scores: {}, scoreTextOptions: ['請假','補課'] };
@@ -1973,7 +2072,8 @@ async function resetLocalData(){
   hasAnyData = false;
   updateSaveStatus();
   refreshAll();
-  toast('已清除，重新開始');
+  pushToCloud();
+  toast(cloudDocRef ? '已清除（所有協作者將同步看到重置後的畫面）' : '已清除，重新開始');
 }
 function uid(){ return 'i'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
 function toast(msg){
@@ -3126,6 +3226,7 @@ renderScoreTextChips();
 renderCalendar();
 updateSaveStatus();
 if(restored){ toast('已自動載入上次在此瀏覽器儲存的資料'); }
+subscribeCloud();
 
 
   return { addItemRow, addScoreTextOption, addStudent, addSubject, buildStudentReportHtml, clearDay, clearGradeDateFilter, clearJpegDateFilter, closeDayModal, collectItems, downloadAllJpeg, downloadJpeg, ensureDay, escapeHtml, exportBackup, exportGradeExcel, filterJpegStudentSelect, fmtDate, getAllMonthKeys, getGradeFilterState, getJpegFilterState, getMonthWeeks, gradeColumnLabel, gradeExcelDateLabel, gradeExcelItemText, gridKeyNav, importBackup, importGradeExcel, importStudentsExcel, itemDetailText, jpegPeriodFilenamePart, jpegPeriodLabel, loadFromLocalStorage, markDirty, markSaved, migrateDayShape, migrateMonthsShape, moveItem, openDayModal, pad2, populateMonthFilter, populateStudentSelect, refreshAll, removeItemRow, removeStudent, renderCalendar, renderGradeGrid, renderItemsList, renderJpegPreview, renderScoreTextChips, renderStudents, renderSubjects, resetLocalData, saveDayModal, saveToLocalStorage, setScore, shiftMonth, showConfirmModal, showInfoModal, showJpegResult, showPromptModal, subjectOptionsHtml, switchTab, syncItemsFromDOM, toast, uid, updateSaveStatus, updateScoreTextDatalist, ymKey };
