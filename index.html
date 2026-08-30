@@ -29,6 +29,10 @@ let cloudDb = null;
 try{
   firebase.initializeApp(firebaseConfig);
   cloudDb = firebase.firestore();
+  // 有些學校/補習班的網路環境（防火牆、代理伺服器）會擋掉 Firestore 預設用來即時推播的長連線，
+  // 導致「第一次抓資料成功、之後的即時更新卻收不到」。這個設定讓 SDK 自動偵測並改用相容性較高的
+  // 長輪詢（long polling）方式連線，避免這個問題。
+  cloudDb.settings({ experimentalAutoDetectLongPolling: true, merge: true });
 }catch(err){
   console.error('Firebase 初始化失敗，將僅使用本機儲存', err);
 }
