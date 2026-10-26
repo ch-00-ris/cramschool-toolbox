@@ -312,6 +312,8 @@ body{min-height:100vh;}
   .mod-order .cal-table .day-num { font-size:14px; }
   .mod-order .cal-table .marked .day-num { font-weight:bold; color:#2f8f3e; }
   .mod-order .cal-table .mark-icon { display:block; font-size:12px; color:#2f8f3e; font-weight:bold; line-height:1.3; }
+  .mod-order .cal-table td.marked-double { background:#c9e8c4; }
+  .mod-order .cal-table .marked-double .mark-icon { color:#1f6b2c; }
   .mod-order .notice-summary-line { margin-top:14px; font-size:15px; text-align:right; line-height:1.9; }
   .mod-order .notice-summary-line .amt { font-weight:bold; color:#c0392b; font-size:19px; }
   /* ---------- Modal ---------- */
@@ -802,7 +804,7 @@ body{min-height:100vh;}
 
         <table class="data-table" id="studentTable" style="margin-top:26px;">
           <thead>
-            <tr><th>姓名</th><th>訂餐天數</th><th>原始餐費</th><th>扣除餐數</th><th>實收餐費</th><th>就讀年級（可個別覆寫）</th><th>只收餐費<br>（不產生學費通知單）</th></tr>
+            <tr><th>姓名</th><th>訂餐餐數</th><th>原始餐費</th><th>扣除餐數</th><th>實收餐費</th><th>就讀年級（可個別覆寫）</th><th>只收餐費<br>（不產生學費通知單）</th></tr>
           </thead>
           <tbody id="studentTableBody"></tbody>
         </table>
@@ -1125,6 +1127,7 @@ const state = {
 function $(id){ return document.getElementById(id); }
 
 const STORAGE_KEY = 'noticeApp_settings_v1';
+const MEAL_PRICE = 110; // 每餐金額（午餐、晚餐相同）
 const COURSE_KEY = 'noticeApp_courses_v1';
 const BANK_KEY = 'noticeApp_banks_v1';
 
@@ -1389,28 +1392,39 @@ function parseWorkbook(workbook){
     if(v==='午' || v==='晚'){ hasMealTypeSplit = true; break; }
   }
 
-  function mergeRowIntoStudent(student, row){
+  /* 把一列（午 / 晚 / 舊版單列）的資料「累加」進學生資料。
+     修正前：「晚」列的餐數、金額、扣除餐數會直接「覆蓋」掉「午」列的數字，
+     導致同時有訂午餐和晚餐的學生，餐數與金額對不起來，算出奇怪的金額。
+     修正後：餐數一律以「實際勾選的格子數」計算（午、晚各算一餐），
+     Excel 的「餐數／金額」欄只拿來比對檢查；扣除餐數則把各列的數字相加
+     （合併儲存格只會有一列有值，相加後結果不變）。 */
+  function mergeRowIntoStudent(student, row, mealType){
     for(const c in colToDate){
       const v = row[c];
-      if(v===1 || v==='1' || v===true || String(v).trim().toUpperCase()==='V'){
-        student.dateSet.add(colToDate[c]);
+      const mark = String(v==null?'':v).trim().replace('１','1').toUpperCase();
+      if(v===1 || v===true || mark==='1' || mark==='V'){
+        const d = colToDate[c];
+        student.dateSet.add(d);
+        if(mealType==='晚') student.dinnerSet.add(d);
+        else student.lunchSet.add(d);
       }
     }
     if(mealCol>=0 && row[mealCol]!=='' && row[mealCol]!=null){
       const mv = parseFloat(row[mealCol]);
-      if(!isNaN(mv)) student.mealCount = mv;
+      if(!isNaN(mv)) student.excelMealCount = (student.excelMealCount||0) + mv;
     }
     if(amountCol>=0 && row[amountCol]!=='' && row[amountCol]!=null){
       const av = parseFloat(row[amountCol]);
-      if(!isNaN(av)) student.amount = av;
+      if(!isNaN(av)) student.excelAmount = (student.excelAmount||0) + av;
     }
     if(deductCol>=0 && row[deductCol]!=='' && row[deductCol]!=null){
       const dv = parseFloat(row[deductCol]);
-      if(!isNaN(dv)) student.deduction = dv;
+      if(!isNaN(dv)) student.deduction = (student.deduction||0) + dv;
     }
   }
   function newStudent(rawName){
-    return { name: rawName.replace(/\s+/g,''), dateSet: new Set(), mealCount:null, amount:null, deduction:null };
+    return { name: rawName.replace(/\s+/g,''), dateSet: new Set(), lunchSet: new Set(), dinnerSet: new Set(),
+             excelMealCount:null, excelAmount:null, deduction:null };
   }
 
   const rawStudents = [];
@@ -1428,14 +1442,14 @@ function parseWorkbook(workbook){
       if(mealType === '晚'){
         // 「晚」列一定是延續上一位學生的資料（無論姓名欄是否為空），
         // 如果上一位是空白樣板列（current為null），則這裡也一併略過
-        if(current) mergeRowIntoStudent(current, rows[r]);
+        if(current) mergeRowIntoStudent(current, rows[r], '晚');
         continue;
       }
       if(mealType === '午'){
         if(rawName){
           current = newStudent(rawName);
           rawStudents.push(current);
-          mergeRowIntoStudent(current, rows[r]);
+          mergeRowIntoStudent(current, rows[r], '午');
         }else{
           // 姓名空白的「午」列＝ Excel 裡預留但沒有真正學生的空白樣板列，
           // 不能把它後面的「晚」列誤算成前一位學生的資料，所以在這裡把 current 清空
@@ -1454,14 +1468,27 @@ function parseWorkbook(workbook){
       mergeRowIntoStudent(current, rows[r]);
     }
   }
-  const students = rawStudents.map(s=>({
-    name: s.name,
-    dates: Array.from(s.dateSet),
-    mealCount: s.mealCount!=null ? s.mealCount : s.dateSet.size,
-    amount: s.amount!=null ? s.amount : 0,
-    deduction: s.deduction!=null ? s.deduction : 0,
-    grade: '',
-  }));
+  const students = rawStudents.map(s=>{
+    const lunchCount = s.lunchSet.size;
+    const dinnerCount = s.dinnerSet.size;
+    const markedCount = lunchCount + dinnerCount;
+    // 有勾選格子就以勾選數為準；完全沒勾選時才退回使用 Excel 的「餐數」欄
+    const mealCount = markedCount>0 ? markedCount : (s.excelMealCount!=null ? s.excelMealCount : 0);
+    return {
+      name: s.name,
+      dates: Array.from(s.dateSet),
+      lunchDates: Array.from(s.lunchSet),
+      dinnerDates: Array.from(s.dinnerSet),
+      lunchCount: hasMealTypeSplit ? lunchCount : null,
+      dinnerCount: hasMealTypeSplit ? dinnerCount : null,
+      mealCount,
+      amount: mealCount * MEAL_PRICE,
+      excelMealCount: s.excelMealCount,
+      excelAmount: s.excelAmount,
+      deduction: s.deduction!=null ? s.deduction : 0,
+      grade: '',
+    };
+  });
   return { month, students };
 }
 
@@ -1568,8 +1595,8 @@ function renderStudentTable(){
     const tr = document.createElement('tr');
     tr.innerHTML =
       '<td>'+escapeHtml(s.name)+'</td>'+
-      '<td>'+s.mealCount+'</td>'+
-      '<td>'+(s.amount ? ('$'+s.amount) : '<span style="color:#c0392b;">未填寫</span>')+'</td>'+
+      '<td>'+s.mealCount+(s.lunchCount!=null ? '<div style="font-size:13px;color:#9c8f5e;">午 '+s.lunchCount+'／晚 '+s.dinnerCount+'</div>' : '')+'</td>'+
+      '<td>$'+finance.amount+(mealMismatchNote(s) ? '<div style="font-size:13px;color:#c0392b;">⚠ '+escapeHtml(mealMismatchNote(s))+'，已改依勾選格子計算</div>' : '')+'</td>'+
       '<td>'+(s.deduction>0 ? s.deduction : '－')+'</td>'+
       '<td><b>$'+finance.netAmount+'</b></td>'+
       '<td><input type="text" placeholder="（套用預設值）" value="'+escapeHtml(s.grade||'')+'" onchange="OrderApp.updateGrade('+idx+', this.value)"></td>'+
@@ -1837,12 +1864,23 @@ async function renderStudentToJPEG(student){
 /* 依「餐數/金額」推算每餐單價，並算出扣除上月未吃餐數後的實際應繳餐費 */
 function computeMealFinance(student){
   const mealCount = student.mealCount || 0;
-  const amount = student.amount || 0;
   const deduction = student.deduction || 0;
-  const unitPrice = (mealCount>0 && amount>0) ? (amount/mealCount) : 110;
-  const deductionAmount = Math.round(deduction * unitPrice);
-  const netAmount = Math.max(0, Math.round(amount - deductionAmount));
-  return { unitPrice, deductionAmount, netAmount };
+  const unitPrice = MEAL_PRICE; // 每餐固定 110 元（午餐、晚餐同價）
+  const amount = mealCount * unitPrice;
+  const deductionAmount = deduction * unitPrice;
+  const netAmount = Math.max(0, amount - deductionAmount);
+  return { unitPrice, amount, deductionAmount, netAmount };
+}
+/* 檢查 Excel 上的「餐數／金額」是否與實際勾選的格子一致，不一致時在第二步表格提醒 */
+function mealMismatchNote(student){
+  const notes = [];
+  if(student.excelMealCount!=null && student.excelMealCount!==student.mealCount){
+    notes.push('Excel 餐數為 '+student.excelMealCount);
+  }
+  if(student.excelAmount!=null && student.excelAmount!==student.mealCount*MEAL_PRICE){
+    notes.push('Excel 金額為 $'+student.excelAmount);
+  }
+  return notes.join('、');
 }
 
 /* 建立通知單 HTML（學費表 + 餐費表），文字/表格/背景設計維持樣式，僅代入資料庫內容 */
@@ -1852,7 +1890,9 @@ function buildNoticeHTML(student){
   const finance = computeMealFinance(student);
   const includeTuition = !student.skipTuition;
   const totalAmount = (includeTuition ? (settings.tuition||0) : 0) + finance.netAmount;
-  const weeks = buildCalendarWeeks(settings.year, parseInt(settings.month)||1, student.dates);
+  const dinnerSet = new Set(student.dinnerDates||[]);
+  const doubleDates = (student.lunchDates||[]).filter(d=>dinnerSet.has(d));
+  const weeks = buildCalendarWeeks(settings.year, parseInt(settings.month)||1, student.dates, doubleDates);
 
   let calHtml = '<table class="cal-table"><thead><tr>';
   ['日','一','二','三','四','五','六'].forEach(w=>{ calHtml += '<th>星期'+w+'</th>'; });
@@ -1861,6 +1901,7 @@ function buildNoticeHTML(student){
     calHtml += '<tr>';
     week.forEach(cell=>{
       if(!cell){ calHtml += '<td class="empty"></td>'; }
+      else if(cell.marked && cell.double){ calHtml += '<td class="marked marked-double"><span class="day-num">'+cell.date+'</span><span class="mark-icon">✓午+晚 2餐</span></td>'; }
       else if(cell.marked){ calHtml += '<td class="marked"><span class="day-num">'+cell.date+'</span><span class="mark-icon">✓已訂餐</span></td>'; }
       else { calHtml += '<td><span class="day-num">'+cell.date+'</span></td>'; }
     });
@@ -1903,21 +1944,22 @@ function buildNoticeHTML(student){
   +     '<div class="notice-para">為了保障孩子的安全，本班規定到班之後不得離開補習班。如家長無法前來為孩子送餐，本班提供代訂便當的服務，為孩子準備營養均衡的餐點，一餐費用110元整，歡迎家長多加利用。</div>'
   +     '<div class="notice-subline">貴子弟 '+escapeHtml(student.name)+' 於 '+escapeHtml(settings.month)+' 月份由本班所代訂便當如下：</div>'
   +     calHtml
-  +     '<div class="notice-summary-line">共 '+student.mealCount+' 餐'+(student.deduction>0 ? '，扣除上月未吃 '+student.deduction+' 餐':'')+'，餐費 $'+finance.netAmount+' 元，請於 '+escapeHtml(settings.deadline)+' 前繳交　｜　'+totalLineLabel+' <span class="amt">$'+totalAmount+'</span> 元</div>'
+  +     '<div class="notice-summary-line"><span style="white-space:nowrap;">共 '+student.mealCount+' 餐'+(student.lunchCount>0 && student.dinnerCount>0 ? '（午'+student.lunchCount+'、晚'+student.dinnerCount+'）' : '')+(student.deduction>0 ? '，扣除上月未吃 '+student.deduction+' 餐':'')+'，餐費 $'+finance.netAmount+' 元，請於 '+escapeHtml(settings.deadline)+' 前繳交</span> <span style="white-space:nowrap;">｜　'+totalLineLabel+' <span class="amt">$'+totalAmount+'</span> 元</span></div>'
   +   '</div>'
   + '</div>';
 }
 
 /* 依西元年、月份，組出「標準週曆」格式（日一二三四五六），並標示已訂餐的日期 */
-function buildCalendarWeeks(year, month, orderedDates){
+function buildCalendarWeeks(year, month, orderedDates, doubleDates){
   const orderedSet = new Set(orderedDates);
+  const doubleSet = new Set(doubleDates||[]); // 同一天午、晚都有訂的日期
   const daysInMonth = new Date(year, month, 0).getDate();
   const firstDow = new Date(year, month-1, 1).getDay(); // 0=日
   const weeks = [];
   let week = new Array(7).fill(null);
   let col = firstDow;
   for(let d=1; d<=daysInMonth; d++){
-    week[col] = { date:d, marked: orderedSet.has(d) };
+    week[col] = { date:d, marked: orderedSet.has(d), double: doubleSet.has(d) };
     col++;
     if(col===7){ weeks.push(week); week = new Array(7).fill(null); col=0; }
   }
